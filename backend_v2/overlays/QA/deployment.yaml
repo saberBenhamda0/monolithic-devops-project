@@ -1,0 +1,6 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-manga2you
+spec:
+  replicas: 2

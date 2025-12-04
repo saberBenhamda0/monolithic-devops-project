@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  backend-manga2you
+  # namespace: default
+  # labels:
+  #   app:  backend-manga2you
+spec:
+  selector:
+    # matchLabels:
+    #   app: backend-manga2you
+  replicas: 1
+  template:
+    metadata:
+      # labels:
+      #   app:  backend-manga2you
+    spec:
+
+      serviceAccountName: backend-sa
+      containers:
+      - name: backend-manga2you-container
+        image: backend-manga2you:latest
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort:  9632

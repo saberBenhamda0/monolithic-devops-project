@@ -1,0 +1,14 @@
+resources:
+  - '../../base'
+  - 'namespace.yaml'
+
+namespace: qa 
+
+nameSuffix: '-v1'
+namePrefix: 'qa-'
+
+patches:
+  - target:
+      name: backend-manga2you
+      kind: Deployment
+    path: deployment.yaml
