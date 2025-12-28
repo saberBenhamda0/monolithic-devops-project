@@ -1,0 +1,24 @@
+resources:
+  - '../../base'
+  - 'namespace.yaml'
+
+namespace: prod
+
+namePrefix: 'prod-'
+nameSuffix: '-v1'
+
+patches:
+  - target:
+      name: backend-manga2you
+      kind: Deployment
+    path: deployment.yaml
+
+  - target: 
+      name: backend-manga2you-hpa
+      kind: HorizontalPodAutoscaler
+    path: hpa.yaml
+
+configMapGenerator:
+  - name: backend-manga2you-env-variables
+    envs:
+     - config.properties

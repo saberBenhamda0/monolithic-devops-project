@@ -1,0 +1,26 @@
+apiVersion: autoscaling/v2
+# Use autoscaling/v2 for full features (like memory scaling). v1 is legacy.
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backnd-manga2you-hpa # HPA name
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend-manga2you # This is the deployment we want to scale
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70 # Target 70% average CPU usage
+        # if consumtion is more than 70% we create more pods
+# - type: Resource
+#   resource:
+#     name: memory
+#     target:
+#       type: Utilization
+#       averageUtilization: 80 # You can also target Memory

@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - HPA.yaml
+  - rbac/backend/sa.yaml
+  - rbac/backend/role.yaml
+  - rbac/backend/role-biding.yaml
+
+
+commonLabels:
+  app: backend-manga2you
+
+configMapGenerator:
+  - name: base-backend-manga2you-env-variables 
+    envs:
+      - config.properties
+
+      # we can also generate a configMapGenerator
