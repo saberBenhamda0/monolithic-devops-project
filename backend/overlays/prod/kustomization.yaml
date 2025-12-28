@@ -1,6 +1,7 @@
 resources:
   - '../../base'
   - 'namespace.yaml'
+  - '../../metrics-server'
 
 namespace: prod
 
