@@ -1,0 +1,87 @@
+# Enable only the monolithic mimir component
+mimir:
+  enabled: true
+  replicas: 1
+  
+  # Configure as monolithic (all-in-one)
+  structuredConfig:
+    # Run all components in single process
+    target: all
+    
+    # Disable multi-tenancy
+    multitenancy_enabled: false
+    
+    # Use filesystem storage (simple, no object storage needed)
+    common:
+      storage:
+        backend: filesystem
+    
+    blocks_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/blocks
+    
+    alertmanager_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/alertmanager
+    
+    ruler_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/ruler
+  
+  # Persistence for data
+  persistentVolume:
+    enabled: true
+    size: 10Gi
+  
+  # Resources
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+
+# Disable all distributed components
+distributor:
+  enabled: false
+
+ingester:
+  enabled: false
+
+querier:
+  enabled: false
+
+query_frontend:
+  enabled: false
+
+store_gateway:
+  enabled: false
+
+compactor:
+  enabled: false
+
+ruler:
+  enabled: false
+
+alertmanager:
+  enabled: false
+
+# Disable nginx (not needed for monolithic)
+nginx:
+  enabled: false
+
+# Minimal gateway configuration
+gateway:
+  enabled: true
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 8080
+
+# Disable minio (we're using filesystem)
+minio:
+  enabled: false
