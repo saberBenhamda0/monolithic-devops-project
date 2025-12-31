@@ -19,7 +19,7 @@ spec:
       serviceAccountName: backend-sa
       containers:
       - name: backend-manga2you-container
-        image: backend-manga2you:latest
+        image: saberbenhamda0/backend_manga2you:81
         imagePullPolicy: IfNotPresent 
         ports:
         - containerPort:  9632
