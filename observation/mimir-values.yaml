@@ -21,6 +21,10 @@ mimir:
       backend: filesystem
       filesystem:
         dir: /data/tsdb
+
+    # TSDB configuration (separate from blocks_storage)
+    tsdb:
+      dir: /data/tsdb
     
     # Alertmanager storage
     alertmanager_storage:
