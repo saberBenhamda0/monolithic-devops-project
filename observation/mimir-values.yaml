@@ -16,20 +16,27 @@ mimir:
       storage:
         backend: filesystem
     
+    # Blocks storage - changed from /data/blocks to /data/tsdb
     blocks_storage:
       backend: filesystem
       filesystem:
-        dir: /data/blocks
+        dir: /data/tsdb
     
+    # Alertmanager storage
     alertmanager_storage:
       backend: filesystem
       filesystem:
         dir: /data/alertmanager
     
+    # Ruler storage
     ruler_storage:
       backend: filesystem
       filesystem:
         dir: /data/ruler
+    
+    # Compactor - explicitly set separate path
+    compactor:
+      data_dir: /data/compactor
   
   # Persistence for data
   persistentVolume:
