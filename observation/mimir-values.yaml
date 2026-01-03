@@ -1,98 +1,148 @@
-# Enable only the monolithic mimir component
-mimir:
-  enabled: true
-  replicas: 1
-  
-  # Configure as monolithic (all-in-one)
-  structuredConfig:
-    # Run all components in single process
-    target: all
+# Prometheus for Academic Project - Low Resources
+# Minimal configuration without Grafana (you already have it)
+# Save this as: prometheus-values.yaml
+
+# ==============================================================================
+# PROMETHEUS CONFIGURATION - MINIMAL RESOURCES
+# ==============================================================================
+prometheus:
+  prometheusSpec:
+    # Data retention settings - reduced for low resources
+    retention: 7d                     # Keep metrics for 7 days only
+    retentionSize: "10GB"             # Limit by size
     
-    # Disable multi-tenancy
-    multitenancy_enabled: false
+    # Persistent storage - minimal size
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 15Gi           # Small disk for academic use
     
-    # Use filesystem storage (simple, no object storage needed)
-    common:
-      storage:
-        backend: filesystem
+    # Resource allocation - VERY LOW for academic projects
+    resources:
+      requests:
+        cpu: 200m                     # 0.2 CPU cores
+        memory: 512Mi                 # 512MB RAM
+      limits:
+        cpu: 1                        # Max 1 CPU core
+        memory: 1Gi                   # Max 1GB RAM
     
-    # Blocks storage - changed from /data/blocks to /data/tsdb
-    blocks_storage:
-      backend: filesystem
-      filesystem:
-        dir: /data/tsdb
-
-    # TSDB configuration (separate from blocks_storage)
-    tsdb:
-      dir: /data/tsdb
+    # Automatically discover ServiceMonitors and PodMonitors
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
     
-    # Alertmanager storage
-    alertmanager_storage:
-      backend: filesystem
-      filesystem:
-        dir: /data/alertmanager
+    # Scrape interval - increased to reduce load
+    scrapeInterval: 60s               # Every minute (reduced from 30s)
+    evaluationInterval: 60s
     
-    # Ruler storage
-    ruler_storage:
-      backend: filesystem
-      filesystem:
-        dir: /data/ruler
-    
-    # Compactor - explicitly set separate path
-    compactor:
-      data_dir: /data/compactor
-  
-  # Persistence for data
-  persistentVolume:
-    enabled: true
-    size: 10Gi
-  
-  # Resources
-  resources:
-    requests:
-      cpu: 500m
-      memory: 2Gi
-    limits:
-      cpu: 2
-      memory: 4Gi
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 9090
 
-# Disable all distributed components
-distributor:
+# ==============================================================================
+# GRAFANA - DISABLED (you already have it)
+# ==============================================================================
+grafana:
   enabled: false
 
-ingester:
-  enabled: false
-
-querier:
-  enabled: false
-
-query_frontend:
-  enabled: false
-
-store_gateway:
-  enabled: false
-
-compactor:
-  enabled: false
-
-ruler:
-  enabled: false
-
+# ==============================================================================
+# ALERTMANAGER - DISABLED (optional for academic projects)
+# ==============================================================================
 alertmanager:
   enabled: false
 
-# Disable nginx (not needed for monolithic)
-nginx:
-  enabled: false
-
-# Minimal gateway configuration
-gateway:
+# ==============================================================================
+# NODE EXPORTER - Minimal resources
+# ==============================================================================
+nodeExporter:
   enabled: true
-  replicas: 1
-  service:
-    type: ClusterIP
-    port: 8080
+  
+  resources:
+    requests:
+      cpu: 20m                        # Very low CPU
+      memory: 30Mi                    # Minimal memory
+    limits:
+      cpu: 100m
+      memory: 50Mi
 
-# Disable minio (we're using filesystem)
-minio:
-  enabled: false
+# ==============================================================================
+# KUBE-STATE-METRICS - Minimal resources
+# ==============================================================================
+kubeStateMetrics:
+  enabled: true
+  
+  resources:
+    requests:
+      cpu: 20m
+      memory: 50Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+
+# ==============================================================================
+# PROMETHEUS OPERATOR - Minimal resources
+# ==============================================================================
+prometheusOperator:
+  enabled: true
+  
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50Mi
+    limits:
+      cpu: 200m
+      memory: 100Mi
+
+# ==============================================================================
+# DISABLE OPTIONAL EXPORTERS (to save resources)
+# ==============================================================================
+
+# These are optional - disable to save even more resources
+coreDns:
+  enabled: false                      # Disable if not needed
+
+kubeControllerManager:
+  enabled: false                      # Disable for academic projects
+
+kubeScheduler:
+  enabled: false                      # Disable for academic projects
+
+kubeEtcd:
+  enabled: false                      # Disable for academic projects
+
+kubeProxy:
+  enabled: false                      # Disable for academic projects
+
+# ==============================================================================
+# DEFAULT RULES - Keep only essential ones
+# ==============================================================================
+defaultRules:
+  create: true
+  rules:
+    alertmanager: false
+    etcd: false
+    configReloaders: false
+    general: true                     # Keep general rules
+    k8s: true                         # Keep k8s rules
+    kubeApiserver: false
+    kubeApiserverAvailability: false
+    kubeApiserverSlos: false
+    kubelet: false
+    kubeProxy: false
+    kubePrometheusGeneral: false
+    kubePrometheusNodeRecording: true # Keep node recording
+    kubernetesApps: true              # Keep apps monitoring
+    kubernetesResources: true         # Keep resource monitoring
+    kubernetesStorage: false
+    kubernetesSystem: false
+    kubeScheduler: false
+    kubeStateMetrics: true
+    network: false
+    node: true                        # Keep node rules
+    nodeExporterAlerting: false
+    nodeExporterRecording: false
+    prometheus: false
+    prometheusOperator: false
