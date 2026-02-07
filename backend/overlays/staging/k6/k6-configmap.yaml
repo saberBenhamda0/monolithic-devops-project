@@ -19,7 +19,7 @@ data:
     };
     
     export default function () {
-      let res = http.get('http://staging-backend-manga2you-v1.staging.svc.cluster.local');
+      let res = http.get('http://staging-backend-manga2you-v1:9632');
       check(res, { 'status is 200': (r) => r.status === 200 });
       sleep(1);
     }
