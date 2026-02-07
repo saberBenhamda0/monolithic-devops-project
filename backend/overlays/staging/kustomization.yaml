@@ -1,0 +1,27 @@
+resources:
+  - '../../base'
+  - '../../metrics-server'
+
+namespace: staging
+
+namePrefix: 'staging-'
+nameSuffix: '-v1'
+
+configMapGenerator:
+  - name: backend-manga2you-env-variables
+    envs: 
+     - config.properties
+
+patches:
+  - target:
+      name: backend-manga2you
+      kind: Deployment
+    path: deployment.yaml
+  - target:
+      name: backend-manga2you
+      kind: Service
+    path: service.yaml
+  - target:
+      name: backend-manga2you-HPA
+      kind: HorizontalPodAutoscaler
+    path: HPA.yaml
