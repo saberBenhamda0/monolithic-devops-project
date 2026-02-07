@@ -1,6 +1,7 @@
 resources:
   - '../../base'
   - '../../metrics-server'
+  - "k6"
 
 namespace: staging
 

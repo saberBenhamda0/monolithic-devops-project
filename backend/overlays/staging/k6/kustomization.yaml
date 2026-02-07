@@ -1,0 +1,3 @@
+resources:
+  - k6-configmap.yaml
+  - k6-job.yaml
