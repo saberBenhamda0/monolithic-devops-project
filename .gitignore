@@ -1,6 +1,7 @@
-argoCD
 dockerfiles
 jenkins
 rbac
+dockerfiles
+cleaning
 terraform
 test_argocd
