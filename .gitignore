@@ -3,5 +3,8 @@ jenkins
 rbac
 dockerfiles
 cleaning
-terraform
+.terraform.lock.hcl
+terraform.tfstate
+*.backup
+.terraform
 test_argocd
