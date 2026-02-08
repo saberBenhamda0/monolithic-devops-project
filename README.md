@@ -234,6 +234,45 @@ Log aggregation deployed alongside Prometheus:
 
 ## 🔄 CI/CD Pipeline
 
+### Pipeline Architecture
+
+```mermaid
+flowchart LR
+    subgraph "Jenkins Pipeline"
+        A[🔄 Checkout] --> B[🔍 OCA Scan<br/>Trivy]
+        B --> C[🏗️ Build Image<br/>Docker]
+        C --> D[📤 Push to<br/>Docker Hub]
+        D --> E[🚀 Deploy<br/>Update Manifests]
+    end
+    
+    subgraph "Security Scans"
+        B1[Trivy FS Scan<br/>HIGH/CRITICAL]
+        B2[Snyk SAST<br/>Optional]
+    end
+    
+    subgraph "Notifications"
+        S[📢 Slack<br/>#all-manga2you]
+    end
+    
+    B --> B1
+    B -.-> B2
+    A & B & C & D & E --> S
+    
+    E --> F[(GitHub<br/>Manifests Repo)]
+    F --> G[ArgoCD<br/>Auto-Sync]
+    G --> H[☸️ Kubernetes<br/>Cluster]
+```
+
+### Pipeline Stages
+
+| Stage | Tool | Description | Failure Action |
+|-------|------|-------------|----------------|
+| **Checkout** | Git + SSH | Clone source code from GitHub | - |
+| **OCA Scan** | Trivy | Filesystem scan for HIGH/CRITICAL vulnerabilities | Slack notification |
+| **Build Image** | Docker | Build container image with build number tag | - |
+| **Push to Docker Hub** | Docker | Tag and push image to registry | - |
+| **Deploy to Server** | Git | Update `deployment.yaml` with new image tag and push | - |
+
 ### Jenkins Setup
 
 Custom Jenkins agent with pre-installed security tools:
@@ -249,6 +288,35 @@ Custom Jenkins agent with pre-installed security tools:
 - Trivy (Container scanning)
 - Semgrep (SAST)
 ```
+
+### Pipeline Environment Variables
+
+| Variable | Purpose | Source |
+|----------|---------|--------|
+| `SPRING_DATASOURCE_URL` | Database connection | Hardcoded |
+| `SPRING_DATASOURCE_USERNAME` | DB username | Hardcoded |
+| `SPRING_DATASOURCE_PASSWORD` | DB password | Jenkins Credentials |
+| `DOCKERHUB_TOKEN` | Docker Hub authentication | Jenkins Credentials |
+| `SNYK_TOKEN` | Snyk API authentication | Jenkins Credentials |
+| `IMAGE_NAME` | Docker image name | `backend_manga2you` |
+| `DOCKER_HUB_USERNAME` | Docker Hub account | `saberbenhamda0` |
+
+### Security Scanning
+
+| Scanner | Type | Trigger | Threshold |
+|---------|------|---------|-----------|
+| **Trivy** | Filesystem/Dependency | Every build | HIGH, CRITICAL |
+| **Snyk** | SAST (Optional) | On-demand | High severity |
+
+### Slack Notifications
+
+Pipeline integrates with Slack for real-time build notifications:
+
+| Event | Channel | Message |
+|-------|---------|---------|
+| **Pipeline Success** | `#all-manga2you` | ✅ Build success notification |
+| **Pipeline Failure** | `#all-manga2you` | ❌ Build failure alert |
+| **Trivy Scan Failure** | `#all-manga2you` | 🔴 Security vulnerability detected |
 
 ### GitOps Flow (ArgoCD)
 
