@@ -4,6 +4,10 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: backend-manga2you-hpa # HPA name
 spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend-manga2you # This is the deployment we want to scale
   minReplicas: 1
   maxReplicas: 2
   metrics:
