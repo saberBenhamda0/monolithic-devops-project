@@ -1,7 +1,6 @@
 # Prometheus for Academic Project - Low Resources
 # Minimal configuration without Grafana (you already have it)
 # Save this as: prometheus-values.yaml
-
 # ==============================================================================
 # PROMETHEUS CONFIGURATION - MINIMAL RESOURCES
 # ==============================================================================
@@ -41,6 +40,23 @@ prometheus:
     service:
       type: ClusterIP
       port: 9090
+
+# ==============================================================================
+# SPRING BOOT APP - SERVICEMONITOR
+# Tells Prometheus to scrape your Spring Boot /actuator/prometheus endpoint
+# ==============================================================================
+additionalServiceMonitors:
+  - name: spring-boot-app
+    selector:
+      matchLabels:
+        app: backend-manga2you         # Change this to match YOUR app's service label
+    namespaceSelector:
+      matchNames:
+        - dev                      # Change this to your app's namespace
+    endpoints:
+      - port: http                     # Must match the port name in your app's Service
+        path: /actuator/prometheus
+        interval: 60s                  # Aligned with your scrapeInterval above
 
 # ==============================================================================
 # GRAFANA - DISABLED (you already have it)
@@ -99,22 +115,16 @@ prometheusOperator:
 # ==============================================================================
 # DISABLE OPTIONAL EXPORTERS (to save resources)
 # ==============================================================================
-
-# These are optional - disable to save even more resources
 coreDns:
-  enabled: false                      # Disable if not needed
-
+  enabled: false
 kubeControllerManager:
-  enabled: false                      # Disable for academic projects
-
+  enabled: false
 kubeScheduler:
-  enabled: false                      # Disable for academic projects
-
+  enabled: false
 kubeEtcd:
-  enabled: false                      # Disable for academic projects
-
+  enabled: false
 kubeProxy:
-  enabled: false                      # Disable for academic projects
+  enabled: false
 
 # ==============================================================================
 # DEFAULT RULES - Keep only essential ones
@@ -125,23 +135,23 @@ defaultRules:
     alertmanager: false
     etcd: false
     configReloaders: false
-    general: true                     # Keep general rules
-    k8s: true                         # Keep k8s rules
+    general: true
+    k8s: true
     kubeApiserver: false
     kubeApiserverAvailability: false
     kubeApiserverSlos: false
     kubelet: false
     kubeProxy: false
     kubePrometheusGeneral: false
-    kubePrometheusNodeRecording: true # Keep node recording
-    kubernetesApps: true              # Keep apps monitoring
-    kubernetesResources: true         # Keep resource monitoring
+    kubePrometheusNodeRecording: true
+    kubernetesApps: true
+    kubernetesResources: true
     kubernetesStorage: false
     kubernetesSystem: false
     kubeScheduler: false
     kubeStateMetrics: true
     network: false
-    node: true                        # Keep node rules
+    node: true
     nodeExporterAlerting: false
     nodeExporterRecording: false
     prometheus: false
