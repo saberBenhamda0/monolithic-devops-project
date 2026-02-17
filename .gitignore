@@ -1,6 +1,5 @@
 dockerfiles
 jenkins
-rbac
 dockerfiles
 cleaning
 .terraform.lock.hcl
