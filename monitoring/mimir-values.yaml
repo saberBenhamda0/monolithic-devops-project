@@ -33,7 +33,7 @@ prometheus:
     - name: spring-boot-app
       selector:
         matchLabels:
-            pp: backend-manga2you
+            app: backend-manga2you
       namespaceSelector:
         matchNames:
           - dev
