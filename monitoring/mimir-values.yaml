@@ -25,23 +25,23 @@ prometheus:
     scrapeInterval: 60s
     evaluationInterval: 60s
 
-    # ✅ MOVED INSIDE prometheusSpec
-    additionalServiceMonitors:
-      - name: spring-boot-app
-        selector:
-          matchLabels:
-            app: backend-manga2you
-        namespaceSelector:
-          matchNames:
-            - dev
-        endpoints:
-          - port: backend-manga2you-port
-            path: /actuator/prometheus
-            interval: 60s
-
     service:
       type: ClusterIP
       port: 9090
+    # ✅ MOVED INSIDE prometheusSpec
+  additionalServiceMonitors:
+    - name: spring-boot-app
+      selector:
+        matchLabels:
+            pp: backend-manga2you
+      namespaceSelector:
+        matchNames:
+          - dev
+      endpoints:
+        - port: backend-manga2you-port
+          path: /actuator/prometheus
+          interval: 60s
+
 
 grafana:
   enabled: false
