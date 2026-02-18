@@ -9,10 +9,10 @@ spec:
       - name: backend-manga2you-container
         resources:
           limits:
-            cpu: 900m
+            cpu: 1200m
             memory: 1.5Gi
           requests:
-            cpu: 700m
+            cpu: 1000m
             memory: 1Gi
         envFrom:
           - configMapRef:
