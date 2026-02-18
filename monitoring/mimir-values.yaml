@@ -54,7 +54,7 @@ additionalServiceMonitors:
       matchNames:
         - dev                      # Change this to your app's namespace
     endpoints:
-      - port: http                     # Must match the port name in your app's Service
+      - port: backend-manga2you-port                     # Must match the port name in your app's Service
         path: /actuator/prometheus
         interval: 60s                  # Aligned with your scrapeInterval above
 
