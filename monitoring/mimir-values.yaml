@@ -1,95 +1,66 @@
-# Prometheus for Academic Project - Low Resources
-# Minimal configuration without Grafana (you already have it)
-# Save this as: prometheus-values.yaml
-# ==============================================================================
-# PROMETHEUS CONFIGURATION - MINIMAL RESOURCES
-# ==============================================================================
 prometheus:
   prometheusSpec:
-    # Data retention settings - reduced for low resources
-    retention: 7d                     # Keep metrics for 7 days only
-    retentionSize: "10GB"             # Limit by size
+    retention: 7d
+    retentionSize: "10GB"
     
-    # Persistent storage - minimal size
     storageSpec:
       volumeClaimTemplate:
         spec:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 15Gi           # Small disk for academic use
+              storage: 15Gi
     
-    # Resource allocation - VERY LOW for academic projects
     resources:
       requests:
-        cpu: 200m                     # 0.2 CPU cores
-        memory: 512Mi                 # 512MB RAM
+        cpu: 200m
+        memory: 512Mi
       limits:
-        cpu: 1                        # Max 1 CPU core
-        memory: 1Gi                   # Max 1GB RAM
+        cpu: 1
+        memory: 1Gi
     
-    # Automatically discover ServiceMonitors and PodMonitors
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     
-    # Scrape interval - increased to reduce load
-    scrapeInterval: 60s               # Every minute (reduced from 30s)
+    scrapeInterval: 60s
     evaluationInterval: 60s
-    
-    # Service configuration
+
+    # ✅ MOVED INSIDE prometheusSpec
+    additionalServiceMonitors:
+      - name: spring-boot-app
+        selector:
+          matchLabels:
+            app: backend-manga2you
+        namespaceSelector:
+          matchNames:
+            - dev
+        endpoints:
+          - port: backend-manga2you-port
+            path: /actuator/prometheus
+            interval: 60s
+
     service:
       type: ClusterIP
       port: 9090
 
-# ==============================================================================
-# SPRING BOOT APP - SERVICEMONITOR
-# Tells Prometheus to scrape your Spring Boot /actuator/prometheus endpoint
-# ==============================================================================
-additionalServiceMonitors:
-  - name: spring-boot-app
-    selector:
-      matchLabels:
-        app: backend-manga2you         # Change this to match YOUR app's service label
-    namespaceSelector:
-      matchNames:
-        - dev                      # Change this to your app's namespace
-    endpoints:
-      - port: backend-manga2you-port                     # Must match the port name in your app's Service
-        path: /actuator/prometheus
-        interval: 60s                  # Aligned with your scrapeInterval above
-
-# ==============================================================================
-# GRAFANA - DISABLED (you already have it)
-# ==============================================================================
 grafana:
   enabled: false
 
-# ==============================================================================
-# ALERTMANAGER - DISABLED (optional for academic projects)
-# ==============================================================================
 alertmanager:
   enabled: false
 
-# ==============================================================================
-# NODE EXPORTER - Minimal resources
-# ==============================================================================
 nodeExporter:
   enabled: true
-  
   resources:
     requests:
-      cpu: 20m                        # Very low CPU
-      memory: 30Mi                    # Minimal memory
+      cpu: 20m
+      memory: 30Mi
     limits:
       cpu: 100m
       memory: 50Mi
 
-# ==============================================================================
-# KUBE-STATE-METRICS - Minimal resources
-# ==============================================================================
 kubeStateMetrics:
   enabled: true
-  
   resources:
     requests:
       cpu: 20m
@@ -98,12 +69,8 @@ kubeStateMetrics:
       cpu: 100m
       memory: 100Mi
 
-# ==============================================================================
-# PROMETHEUS OPERATOR - Minimal resources
-# ==============================================================================
 prometheusOperator:
   enabled: true
-  
   resources:
     requests:
       cpu: 50m
@@ -112,9 +79,6 @@ prometheusOperator:
       cpu: 200m
       memory: 100Mi
 
-# ==============================================================================
-# DISABLE OPTIONAL EXPORTERS (to save resources)
-# ==============================================================================
 coreDns:
   enabled: false
 kubeControllerManager:
@@ -126,9 +90,6 @@ kubeEtcd:
 kubeProxy:
   enabled: false
 
-# ==============================================================================
-# DEFAULT RULES - Keep only essential ones
-# ==============================================================================
 defaultRules:
   create: true
   rules:
