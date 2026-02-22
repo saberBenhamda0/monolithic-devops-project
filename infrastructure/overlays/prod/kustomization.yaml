@@ -2,6 +2,11 @@ resources:
   - '../../base'
   - 'namespace.yaml'
   - '../../metrics-server'
+  - './job'
+  - 'canary-service.yaml'
+  - 'canary-ingress.yaml'
+  - 'canary-rollout.yaml'
+  - 'canary-validation-analysis-template.yaml'
 
 namespace: prod
 
@@ -10,16 +15,28 @@ nameSuffix: '-v1'
 
 patches:
   - target:
-      name: backend-manga2you
       kind: Deployment
-    path: deployment.yaml
+      name: backend-manga2you
+    patch: |-
+      $patch: delete
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: backend-manga2you
+
+  # - target: 
+  #     name: backend-manga2you-hpa
+  #     kind: HorizontalPodAutoscaler
+  #   path: hpa.yaml
 
   - target: 
-      name: backend-manga2you-hpa
-      kind: HorizontalPodAutoscaler
-    path: hpa.yaml
+      name: backend-manga2you
+      kind: Ingress
+    path: ingress.yaml
 
 configMapGenerator:
   - name: backend-manga2you-env-variables
     envs:
      - config.properties
+    options:
+      disableNameSuffixHash: true

@@ -9,8 +9,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: backend-manga2you # This is the deployment we want to scale
-  minReplicas: 1
-  maxReplicas: 4
+  minReplicas: 0
+  maxReplicas: 0
   metrics:
     - type: Resource
       resource:

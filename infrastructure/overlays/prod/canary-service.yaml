@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-manga2you-canary-service
+  namespace: prod
+  labels:
+    app: backend-manga2you
+    role: canary
+spec:
+  selector:
+    app: backend-manga2you
+  ports:
+    - name: http
+      port: 9632
+      targetPort: 9632
+      protocol: TCP
+  type: ClusterIP

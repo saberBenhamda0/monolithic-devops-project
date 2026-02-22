@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: canary-validation
+  namespace: production
+spec:
+  args:
+    - name: service-name
+
+  metrics:
+    # ---- Metric 1: HTTP Success Rate -------------------------
+    # Must be >= 95% success (non-5xx responses)
+    # Runs every 30s, 5 times total per analysis step
+    # Fails if success rate drops below threshold 3 times
+    - name: success-rate
+      interval: 30s
+      count: 5
+      successCondition: result[0] >= 0.95
+      failureLimit: 3                 # allow 3 failures before aborting
+      provider:
+        prometheus:
+          address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(http_requests_total{
+              job="{{ args.service-name }}",
+              status!~"5.."
+            }[1m]))
+            /
+            sum(rate(http_requests_total{
+              job="{{ args.service-name }}"
+            }[1m]))
+
+    # ---- Metric 2: p99 Latency --------------------------------
+    # Must be <= 500ms (0.5 seconds)
+    # Catches performance regressions even when errors are low
+    - name: latency-p99
+      interval: 30s
+      count: 5
+      successCondition: result[0] <= 0.5
+      failureLimit: 3
+      provider:
+        prometheus:
+          address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            histogram_quantile(0.99,
+              sum(rate(http_request_duration_seconds_bucket{
+                job="{{ args.service-name }}"
+              }[1m])) by (le)
+            )
+
+    # ---- Metric 3: Error Count Spike --------------------------
+    # Catches sudden bursts of errors even if overall rate looks ok
+    # Fails if more than 50 errors per minute
+    - name: error-count
+      interval: 30s
+      count: 5
+      successCondition: result[0] <= 50
+      failureLimit: 3
+      provider:
+        prometheus:
+          address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(http_requests_total{
+              job="{{ args.service-name }}",
+              status=~"5.."
+            }[1m])) * 60

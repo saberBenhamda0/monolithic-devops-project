@@ -1,0 +1,104 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: backend-manga2you
+spec:
+  selector:
+    matchLabels:
+      app: backend-manga2you
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  backend-manga2you
+    spec:
+      serviceAccountName: prod-backend-sa-v1
+      containers:
+      - name: backend-manga2you-container
+        image: saberbenhamda0/backend_manga2you:2.0.1
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort:  9632
+        resources:
+          limits:
+            cpu: 700m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
+        envFrom:
+          - configMapRef:
+                name: prod-backend-manga2you-env-variables-v1
+  strategy:
+      canary:
+        # Stable and canary services for traffic splitting
+        stableService: prod-backend-manga2you-v1
+        canaryService: prod-backend-manga2you-canary-service-v1
+
+        # NGINX ingress for weight-based traffic splitting
+        trafficRouting:
+          nginx:
+            stableIngress: prod-backend-manga2you-canary-ingress-v1
+
+        # Labels added to canary and stable pods for easy identification
+        canaryMetadata:
+          labels:
+            deployment: canary
+        stableMetadata:
+          labels:
+            deployment: stable
+
+        # --------------------------------------------------------
+        # Canary Steps
+        # Each step either sets traffic weight, pauses, or runs
+        # an analysis. If analysis fails at ANY step → auto rollback.
+        # --------------------------------------------------------
+        steps:
+          # Step 1: send 5% traffic to canary, wait 2 mins, then analyze
+          - setWeight: 5
+          - pause: {duration: 2m}
+          - analysis:
+              templates:
+                - templateName: prod-canary-validation-v1
+              args:
+                - name: service-name
+                  value: prod-backend-manga2you-v1
+
+          # Step 2: bump to 20%, wait 5 mins, analyze again
+          - setWeight: 20
+          - pause: {duration: 5m}
+          - analysis:
+              templates:
+                - templateName: prod-canary-validation-v1
+              args:
+                - name: service-name
+                  value: prod-backend-manga2you-v1
+
+          # Step 3: bump to 50%, manual approval gate
+          # Rollout pauses here indefinitely until you run:
+          # kubectl argo rollouts promote myapp
+          - setWeight: 50
+          - pause: {}                   # indefinite pause = manual approval required
+
+          # Step 4: after manual approval, go to 80%, analyze
+          - setWeight: 80
+          - pause: {duration: 5m}
+          - analysis:
+              templates:
+                - templateName: prod-canary-validation-v1
+              args:
+                - name: service-name
+                  value: prod-backend-manga2you-v1
+
+          # Step 5: full rollout — canary becomes the new stable
+          - setWeight: 100
+
+        # --------------------------------------------------------
+        # Automatic Rollback Settings
+        # If analysis fails → Argo immediately rolls back to stable.
+        # The rollback is instant: traffic shifts back to 0% canary.
+        # --------------------------------------------------------
+
+        # How long to keep the old stable ReplicaSet after full promotion
+        # Gives a window to manually rollback if you spot issues post-promotion
+        scaleDownDelaySeconds: 120

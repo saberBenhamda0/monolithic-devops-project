@@ -1,7 +1,9 @@
 dockerfiles
 jenkins
 dockerfiles
+.env
 cleaning
+infrastructure/overlays/prod/job
 .terraform.lock.hcl
 terraform.tfstate
 *.backup

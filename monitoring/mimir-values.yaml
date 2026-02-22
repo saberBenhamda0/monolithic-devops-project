@@ -37,6 +37,7 @@ prometheus:
       namespaceSelector:
         matchNames:
           - dev
+          - prod
       endpoints:
         - port: backend-manga2you-port
           path: /actuator/prometheus
