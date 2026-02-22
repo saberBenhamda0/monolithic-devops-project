@@ -3,7 +3,7 @@ jenkins
 dockerfiles
 .env
 cleaning
-infrastructure/overlays/prod/job
+infrastructure/overlays/prod/job/logs-cron-job-secret.yaml
 .terraform.lock.hcl
 terraform.tfstate
 *.backup

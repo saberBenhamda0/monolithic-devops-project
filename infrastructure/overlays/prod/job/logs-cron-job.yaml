@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: loki-log-exporter
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: export-logs
+            image: grafana/logcli:latest
+            env:
+            - name: LOKI_ADDR
+              value: "http://loki-stack.monitoring.svc.cluster.local:3100"
+            command:
+            - /bin/sh
+            - -c
+            - |
+              DATE=$(date -u -d @$(($(date -u +%s) - 604800)) +%Y-%m-%d)
+              logcli query '{namespace="prod"}' \
+                --from="${DATE}T00:00:00Z" \
+                --to="${DATE}T23:59:59Z" \
+                --output=jsonl | gzip > /shared/logs-${DATE}.jsonl.gz
+            volumeMounts:
+            - name: shared-data
+              mountPath: /shared
+          containers:
+          - name: upload-to-s3
+            image: amazon/aws-cli:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              DATE=$(date -u -d @$(($(date -u +%s) - 604800)) +%Y-%m-%d)
+              aws s3 cp /shared/logs-${DATE}.jsonl.gz \
+                s3://manga2you-kubernetes-prod-logs/logs/date=${DATE}/
+            env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-s3-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-s3-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: aws-s3-credentials
+                  key: AWS_DEFAULT_REGION
+            volumeMounts:
+            - name: shared-data
+              mountPath: /shared
+          volumes:
+          - name: shared-data
+            emptyDir: {}
+          restartPolicy: OnFailure
