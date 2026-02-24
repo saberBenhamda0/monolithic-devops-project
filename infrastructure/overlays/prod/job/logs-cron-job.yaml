@@ -7,7 +7,19 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          annotations:
+            vault.hashicorp.com/agent-inject: "true"
+            vault.hashicorp.com/role: "loki-log-exporter"
+            vault.hashicorp.com/agent-inject-secret-aws: "secret/data/loki-log-exporter/aws"
+            vault.hashicorp.com/agent-inject-template-aws: |
+              {{- with secret "secret/data/backend-manga2you" -}}
+              export AWS_ACCESS_KEY_ID="{{ .Data.data.AWS_ACCESS_KEY_ID }}"
+              export AWS_SECRET_ACCESS_KEY="{{ .Data.data.AWS_SECRET_ACCESS_KEY }}"
+              export AWS_DEFAULT_REGION="{{ .Data.data.AWS_DEFAULT_REGION }}"
+              {{- end }}
         spec:
+          serviceAccountName: loki-log-exporter-sa
           initContainers:
           - name: export-logs
             image: grafana/logcli:latest
@@ -33,25 +45,10 @@ spec:
             - /bin/sh
             - -c
             - |
+              source /vault/secrets/aws
               DATE=$(date -u -d @$(($(date -u +%s) - 604800)) +%Y-%m-%d)
               aws s3 cp /shared/logs-${DATE}.jsonl.gz \
                 s3://manga2you-kubernetes-prod-logs/logs/date=${DATE}/
-            env:
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: aws-s3-credentials
-                  key: AWS_ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: aws-s3-credentials
-                  key: AWS_SECRET_ACCESS_KEY
-            - name: AWS_DEFAULT_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: aws-s3-credentials
-                  key: AWS_DEFAULT_REGION
             volumeMounts:
             - name: shared-data
               mountPath: /shared
