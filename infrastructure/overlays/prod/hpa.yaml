@@ -6,8 +6,8 @@ metadata:
   name: backnd-manga2you-hpa # HPA name
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
     name: backend-manga2you # This is the deployment we want to scale
   minReplicas: 0
   maxReplicas: 0

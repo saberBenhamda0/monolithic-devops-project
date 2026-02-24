@@ -1,6 +1,6 @@
 resources:
 - ../../base
-# - namespace.yaml
+- namespace.yaml
 - ../../metrics-server
 - ./job
 - canary-service.yaml
@@ -10,10 +10,6 @@ resources:
 namespace: prod
 namePrefix: prod-
 nameSuffix: -v1
-  # - target: 
-  #     name: backend-manga2you-hpa
-  #     kind: HorizontalPodAutoscaler
-  #   path: hpa.yaml
 patches:
 - patch: |-
     $patch: delete
@@ -28,6 +24,11 @@ patches:
   target:
     kind: Ingress
     name: backend-manga2you
+- path: hpa.yaml
+  target: 
+      name: backend-manga2you-hpa
+      kind: HorizontalPodAutoscaler
+    
 configMapGenerator:
 - envs:
   - config.properties
