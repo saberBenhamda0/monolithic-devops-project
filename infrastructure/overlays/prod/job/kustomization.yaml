@@ -3,4 +3,3 @@ kind: Kustomization
 
 resources:
   - logs-cron-job.yaml
-  - logs-cron-job-secret.yaml
