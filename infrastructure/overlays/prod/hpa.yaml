@@ -3,7 +3,7 @@ apiVersion: autoscaling/v2
 
 kind: HorizontalPodAutoscaler
 metadata:
-  name: backnd-manga2you-hpa # HPA name
+  name: backend-manga2you-hpa # HPA name
 spec:
   scaleTargetRef:
     apiVersion: argoproj.io/v1alpha1
