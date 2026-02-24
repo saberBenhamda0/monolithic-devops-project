@@ -3,6 +3,7 @@ resources:
 - namespace.yaml
 - ../../metrics-server
 - ./job
+- 'hpa.yaml'
 - canary-service.yaml
 - canary-ingress.yaml
 - canary-rollout.yaml
