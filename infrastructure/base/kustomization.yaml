@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
 - deployment.yaml
 - service.yaml
-- HPA.yaml
+# - hpa.yaml
 - rbac/backend/sa.yaml
 - rbac/backend/role.yaml
 - rbac/backend/role-biding.yaml
