@@ -24,10 +24,15 @@ patches:
   target:
     kind: Ingress
     name: backend-manga2you
-- path: hpa.yaml
-  target: 
+- patch: |-
+    $patch: delete
+    apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
       name: backend-manga2you-hpa
-      kind: HorizontalPodAutoscaler
+  target:
+    kind: HorizontalPodAutoscaler
+    name: backend-manga2you-hpa
     
 configMapGenerator:
 - envs:
