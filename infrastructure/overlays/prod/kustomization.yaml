@@ -1,6 +1,6 @@
 resources:
 - ../../base
-- namespace.yaml
+# - namespace.yaml
 - ../../metrics-server
 - ./job
 - canary-service.yaml
