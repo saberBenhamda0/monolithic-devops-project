@@ -16,6 +16,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: prod-backend-manga2you-v1
+                name: prod-backend-manga2you-canary-service-v1
                 port:
                   number: 9632
