@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-init-script
+  namespace: vault
+data:
+  init.sh: |
+    #!/bin/bash
+
+    # sleep to make sure vault is ready
+    sleep 60
+
+    export VAULT_ADDR="http://127.0.0.1:8200"
+    export VAULT_TOKEN="root"   # default dev mode root token
+
+    # enable kubernetes auth
+    vault auth enable kubernetes
+
+    # configure kubernetes auth with the cluster
+    vault write auth/kubernetes/config \
+      kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
+
+    # enable kv-v2 secret engine
+    vault secrets enable -path=secret kv-v2
+
+    # put secrets from env vars injected by kubernetes secret
+    vault kv put secret/backend-manga2you \
+      AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+      AWS_DEFAULT_REGION="$AWS_DEFAULT_REGION" \
+      AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+
+    # create read policy
+    vault policy write backend-manga2you - <<EOF
+    path "secret/data/backend-manga2you" {
+      capabilities = ["read"]
+    }
+    EOF
+
+    # bind kubernetes service account to vault role
+    vault write auth/kubernetes/role/backend-manga2you \
+      bound_service_account_names=prod-backend-sa-v1 \
+      bound_service_account_namespaces=prod \
+      policies=backend-manga2you \
+      ttl=24h

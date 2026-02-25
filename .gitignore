@@ -7,6 +7,8 @@ infrastructure/overlays/prod/job/logs-cron-job-secret.yaml
 .terraform.lock.hcl
 terraform.tfstate
 *.backup
+vault/scripts
 .terraform
 test_argocd
+txt.txt
 logs-cron-job-secret.yaml

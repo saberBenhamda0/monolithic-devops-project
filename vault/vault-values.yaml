@@ -1,3 +1,29 @@
 server:
   dev:
-    enabled: true   # dev mode only - do NOT use in production (data is in-memory and lost on restart)
+    enabled: true
+  extraEnvironmentVars:
+    AWS_ACCESS_KEY_ID:
+      secretKeyRef:
+        name: vault-init-creds
+        key: AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      secretKeyRef:
+        name: vault-init-creds
+        key: AWS_SECRET_ACCESS_KEY
+    AWS_DEFAULT_REGION:
+      secretKeyRef:
+        name: vault-init-creds
+        key: AWS_DEFAULT_REGION
+
+  volumes:
+    - name: init-script
+      configMap:
+        name: vault-init-script
+        defaultMode: 0755
+  volumeMounts:
+    - name: init-script
+      mountPath: /scripts
+  postStart:
+    - /bin/sh
+    - -c
+    - /scripts/init.sh
