@@ -1,33 +1,33 @@
-apiVersion: autoscaling/v2
-# Use autoscaling/v2 for full features (like memory scaling). v1 is legacy.
+# apiVersion: autoscaling/v2
+# # Use autoscaling/v2 for full features (like memory scaling). v1 is legacy.
 
-kind: HorizontalPodAutoscaler
-metadata:
-  name: backend-manga2you-hpa # HPA name
-spec:
-  scaleTargetRef:
-    apiVersion: argoproj.io/v1alpha1
-    kind: Rollout
-    name: prod-backend-manga2you-v1 # This is the deployment we want to scale
-  minReplicas: 1
-  maxReplicas: 2
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70 # Target 70% average CPU usage
-          # if consumtion is more than 70% we create more pods
-# - type: Resource
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: backend-manga2you-hpa # HPA name
+# spec:
+#   # scaleTargetRef:
+#   #   apiVersion: argoproj.io/v1alpha1
+#   #   kind: Rollout
+#   #   name: prod-backend-manga2you-v1 # This is the deployment we want to scale
+#   # minReplicas: 1
+#   # maxReplicas: 2
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 70 # Target 70% average CPU usage
+#           # if consumtion is more than 70% we create more pods
+# # - type: Resource
 
-#   resource:
+# #   resource:
 
-#     name: memory
+# #     name: memory
 
-#     target:
+# #     target:
 
-#       type: Utilization
+# #       type: Utilization
 
-#       averageUtilization: 80 # You can also target Memory
+# #       averageUtilization: 80 # You can also target Memory
 

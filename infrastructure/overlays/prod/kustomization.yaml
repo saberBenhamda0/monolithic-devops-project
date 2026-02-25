@@ -3,7 +3,6 @@ resources:
 - namespace.yaml
 - ../../metrics-server
 - ./job
-- hpa.yaml
 - ingress.yaml
 - canary-service.yaml
 - canary-ingress.yaml
@@ -22,6 +21,28 @@ patches:
   target:
     kind: Deployment
     name: backend-manga2you
+
+- patch: |-
+    - op: replace
+      path: /spec/scaleTargetRef/apiVersion
+      value: argoproj.io/v1alpha1
+    - op: replace
+      path: /spec/scaleTargetRef/kind
+      value: Rollout
+    - op: replace
+      path: /spec/scaleTargetRef/name
+      value: prod-backend-manga2you-v1
+    - op: replace
+      path: /spec/maxReplicas
+      value: 3
+    - op: replace
+      path: /spec/minReplicas
+      value: 1
+  target: 
+    kind: HorizontalPodAutoscaler
+    name: backend-manga2you-hpa
+
+
 - path: ingress.yaml
   target:
     kind: Ingress
