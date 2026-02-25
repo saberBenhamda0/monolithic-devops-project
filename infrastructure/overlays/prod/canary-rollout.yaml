@@ -38,7 +38,7 @@ spec:
         # NGINX ingress for weight-based traffic splitting
         trafficRouting:
           nginx:
-            stableIngress: prod-backend-manga2you-canary-ingress-v1
+            stableIngress: prod-backend-manga2you-v1
 
         # Labels added to canary and stable pods for easy identification
         canaryMetadata:
