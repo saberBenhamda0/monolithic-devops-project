@@ -39,6 +39,8 @@ spec:
         trafficRouting:
           nginx:
             stableIngress: prod-backend-manga2you-v1
+            additionalIngressAnnotations:
+              canary-by-header: X-Canary
 
         # Labels added to canary and stable pods for easy identification
         canaryMetadata:
