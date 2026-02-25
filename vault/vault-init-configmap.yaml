@@ -5,7 +5,7 @@ metadata:
   namespace: vault
 data:
   init.sh: |
-    #!/bin/bash
+    #!/bin/sh
 
     # sleep to make sure vault is ready
     sleep 60
