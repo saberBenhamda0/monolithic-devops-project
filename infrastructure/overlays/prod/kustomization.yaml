@@ -4,6 +4,7 @@ resources:
 - ../../metrics-server
 - ./job
 - hpa.yaml
+- ingress.yaml
 - canary-service.yaml
 - canary-ingress.yaml
 - canary-rollout.yaml
