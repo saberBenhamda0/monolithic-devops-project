@@ -3,7 +3,6 @@ resources:
 - namespace.yaml
 - ../../metrics-server
 - ./job
-- ingress.yaml
 - canary-service.yaml
 - canary-ingress.yaml
 - canary-rollout.yaml
@@ -42,12 +41,15 @@ patches:
     kind: HorizontalPodAutoscaler
     name: backend-manga2you-hpa
 
-
-- path: ingress.yaml
+- patch: |-
+    - op: replace
+      path: /spec/rules/0/http/paths/0/backend/service/name
+      value: prod-backend-manga2you-v1
   target:
     kind: Ingress
     name: backend-manga2you
-    
+
+
 configMapGenerator:
 - envs:
   - config.properties
