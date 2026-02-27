@@ -2,9 +2,13 @@ pipeline {
     agent { label 'gitops-agent' }
 
     triggers {
-        githubPush()
+        githubPullRequests(
+            triggerMode: 'HEAVY_HOOKS',
+            events: [Open(), Commit()],  // trigger on PR open and new commits to PR
+            branchRestriction: 'main'    // only PRs targeting main
+        )
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
