@@ -1,0 +1,20 @@
+services:
+  jenkins:
+    container_name: jenkins-container
+    image: myjenkins-blueocean:2.414.2 
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - jenkins_volume:/var/jenkins_home
+      # this below works if we running the docker-compose from windows
+      - //./pipe/docker_engine:/var/run/docker.sock
+      # this below works if we running the docker-compose from linux
+      # /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jenkins 
+volumes:
+  jenkins_volume:
+networks:
+  jenkins:
+    external: true 
