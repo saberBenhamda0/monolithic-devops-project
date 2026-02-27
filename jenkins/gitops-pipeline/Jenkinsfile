@@ -1,6 +1,10 @@
 pipeline {
     agent { label 'gitops-agent' }
 
+    triggers {
+        githubPush()
+    }
+    
     stages {
         stage('Checkout') {
             steps {
