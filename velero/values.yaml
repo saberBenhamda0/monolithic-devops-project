@@ -1,0 +1,31 @@
+configuration:
+  backupStorageLocation:
+    - name: default
+      provider: aws
+      bucket: manga2you-kubernetes-prod-logs
+      default: true
+      # this below create a dir called velero for velero to work on 
+      # velero is strict on folder to be empty and doesn't have files.
+      prefix: velero
+      config:
+        region: us-east-1
+
+  volumeSnapshotLocation:
+    - name: default
+      provider: aws
+      config:
+        region: us-east-1
+
+# AWS plugin
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.9.0
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+credentials:
+  existingSecret: velero-credentials
+
+# Optional: enable node-agent for file-system backups (PVCs)
+deployNodeAgent: true
