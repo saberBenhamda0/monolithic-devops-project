@@ -1,19 +1,17 @@
 server:
   dev:
     enabled: true
-  extraEnvironmentVars:
-    AWS_ACCESS_KEY_ID:
-      secretKeyRef:
-        name: vault-init-creds
-        key: AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY:
-      secretKeyRef:
-        name: vault-init-creds
-        key: AWS_SECRET_ACCESS_KEY
-    AWS_DEFAULT_REGION:
-      secretKeyRef:
-        name: vault-init-creds
-        key: AWS_DEFAULT_REGION
+
+  extraSecretEnvironmentVars:
+    - envName: AWS_ACCESS_KEY_ID
+      secretName: vault-init-creds
+      secretKey: AWS_ACCESS_KEY_ID
+    - envName: AWS_SECRET_ACCESS_KEY
+      secretName: vault-init-creds
+      secretKey: AWS_SECRET_ACCESS_KEY
+    - envName: AWS_DEFAULT_REGION
+      secretName: vault-init-creds
+      secretKey: AWS_DEFAULT_REGION
 
   volumes:
     - name: init-script
