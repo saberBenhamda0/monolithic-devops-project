@@ -15,12 +15,22 @@ pipeline {
         DOCKERHUB_TOKEN = credentials("DOCKERHUB_TOKEN")
         
         SNYK_TOKEN = credentials("synk_token")
-        
+        KUBECONFIG = credentials('kube-config-for-staging')
         GITHUB_TOKEN = credentials("GITHUB_TOKEN")
 
     }
 
     stages {
+
+    stage('Test') {
+      steps {
+        sh 'kubectl get nodes'
+        sh 'kubectl get pods -A'
+      }
+    }
+
+
+        /*
 
         stage('Checkout') {
             steps {
@@ -93,8 +103,6 @@ post {
 }
 }
      
-     
-     
         stage('Building The Image'){
             steps {
                         // Build the image
@@ -104,7 +112,6 @@ post {
                         '''
             }
         }
-        
         
         stage('Pushing To Docker Hub'){
             steps {
@@ -117,8 +124,6 @@ post {
                         '''
             }
         }
-        
-        
         
         stage('Deploy to Server'){
             steps {
@@ -137,10 +142,7 @@ post {
                         git push -u origin main
                         '''
             }
-        }
-    
-        
-        
+        }      
     }
     
     post {
@@ -156,5 +158,9 @@ post {
                 message: " pipeline failed for ${env.JOB_NAME} #${env.BUILD_NUMBER}"
             )
 }
+*/
+
+
+
     }
 }
