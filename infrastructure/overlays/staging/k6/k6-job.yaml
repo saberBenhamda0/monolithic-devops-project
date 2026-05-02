@@ -9,7 +9,7 @@ spec:
       containers:
       - name: k6
         image: grafana/k6:latest
-        command: ["k6", "run", "/scripts/test.js"]
+        command: ["k6", "run", "/scripts/simulate-traffic.js"]
         volumeMounts:
         - name: scripts
           mountPath: /scripts

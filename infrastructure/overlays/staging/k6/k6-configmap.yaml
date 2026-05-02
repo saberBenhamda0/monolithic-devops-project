@@ -4,7 +4,7 @@ metadata:
   name: k6-scripts
   namespace: staging
 data:
-  test.js: |
+  simulate-traffic.js: |
     import http from 'k6/http';
     import { check, sleep } from 'k6';
     
