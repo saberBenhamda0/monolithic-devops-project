@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: backend-manga2you-container
-        image: saberbenhamda0/backend_manga2you:138
+        image: saberbenhamda0/backend_manga2you:136
         resources:
           limits:
             cpu: 700m
