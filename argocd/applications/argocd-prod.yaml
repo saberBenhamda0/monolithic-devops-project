@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: myapp-prod
+  name: prod-backend-manga2you
   namespace: argocd
 spec:
   project: default
