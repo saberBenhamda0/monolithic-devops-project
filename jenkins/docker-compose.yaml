@@ -3,10 +3,11 @@ services:
     container_name: jenkins-container
     image: myjenkins-blueocean:2.414.2 
     ports:
-      - "8080:8080"
+      - "8090:8080"
 
     volumes:
       - jenkins_volume:/var/jenkins_home
+      - ./kube-config.yaml:/tmp/kubeconfig.yaml:ro
       # this below works if we running the docker-compose from windows
       - //./pipe/docker_engine:/var/run/docker.sock
       # this below works if we running the docker-compose from linux
