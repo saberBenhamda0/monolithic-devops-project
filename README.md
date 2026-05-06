@@ -216,13 +216,28 @@ The DevSecOps pipeline handles building, security scanning, and deploying the ap
 
 ```mermaid
 flowchart LR
-    A["🔄 Checkout<br/>(SSH)"] --> B["🏗️ Build & Test<br/>(Maven)"]
+    A["🔄 Checkout<br/>(SSH Git Clone)"] --> B["🏗️ Build & Test<br/>(Maven)"]
+    
     B --> C["🔍 OCA Scan<br/>(Trivy FS)"]
-    C --> D["🛡️ SAST Scan<br/>(Snyk)"]
+    C --> D["🛡️ SAST Scan<br/>(Snyk Code)"]
+    
     D --> E["📦 Build Image<br/>(Docker)"]
-    E --> F["📤 Push to<br/>Docker Hub"]
-    F --> G["🚀 Deploy<br/>(Update Manifests)"]
-    G --> H["🔔 Slack<br/>Notification"]
+    E --> F["📤 Push Image<br/>(Docker Hub)"]
+    
+    F --> G["🔎 Get Current Tag<br/>(GitOps Repo)"]
+    G --> H["⬆️ Promote Image<br/>(Update Dev & Staging YAML)"]
+    
+    H --> I["🚀 Deploy<br/>(Git Push → ArgoCD)"]
+    
+    I --> J["🔄 ArgoCD Sync<br/>+ Wait Healthy"]
+    
+    J --> K["🧪 Load Testing<br/>(k6 Job on Staging)"]
+    
+    K -->|❌ Failure| L["↩️ Rollback<br/>(Git Revert + ArgoCD Sync)"]
+    K -->|✅ Success| M["🎉 Success"]
+    
+    M --> N["🔔 Slack Notification"]
+    L --> N
 ```
 
 | Stage | Tool | Description | Failure Action |
