@@ -6,4 +6,3 @@ metadata:
     grafana_dashboard: "1"
 data:
   production-dashboards.json: |
-    { ... your dashboard JSON ... }
