@@ -10,11 +10,11 @@ spec:
           image: saberbenhamda0/backend_manga2you:89
           resources:
             limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
               cpu: 700m
               memory: 1Gi
-            requests:
-              cpu: 500m
-              memory: 500Mi
           envFrom:
             - configMapRef:
                 name: backend-manga2you-env-variables

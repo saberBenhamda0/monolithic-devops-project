@@ -12,3 +12,9 @@ spec:
       port: 9632
       targetPort: 9632
       nodePort: 32000
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - name: backend-manga2you-port
+#       port: 9632
+#       targetPort: 9632
