@@ -12,6 +12,6 @@ data:
       - name: PrometheusfromconfigMap
         type: prometheus
         access: proxy
-        url: http://http://prometheus-kube-prometheus-prometheus:9090
+        url: http://prometheus-kube-prometheus-prometheus:9090
         isDefault: true
         editable: false
