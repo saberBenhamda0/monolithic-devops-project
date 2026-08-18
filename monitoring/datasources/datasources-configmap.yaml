@@ -5,4 +5,13 @@ metadata:
   labels:
     grafana_datasource: "1"
 data:
-  production-datasource.json: |
+  production-datasource.yaml: |
+    apiVersion: 1
+
+    datasources:
+      - name: PrometheusfromconfigMap
+        type: prometheus
+        access: proxy
+        url: http://http://prometheus-kube-prometheus-prometheus:9090
+        isDefault: true
+        editable: false
