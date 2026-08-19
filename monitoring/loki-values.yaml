@@ -32,6 +32,10 @@ grafana:
   service:
     type: ClusterIP
     port: 3000
+  admin:
+    existingSecret: "grafana-admin-credentials"
+    userKey: admin-user
+    passwordKey: admin-password
   sidecar:
       dashboards:
         resource: configmap
