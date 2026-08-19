@@ -9,9 +9,20 @@ data:
     apiVersion: 1
 
     datasources:
-      - name: PrometheusfromconfigMap
+      - name: Prometheus
         type: prometheus
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus:9090
         isDefault: true
+        version: 1
         editable: false
+        jsonData:
+          {}
+      - name: Loki
+        type: loki
+        access: proxy
+        url: "http://loki-stack:3100"
+        version: 1
+        isDefault: false
+        jsonData:
+          {}

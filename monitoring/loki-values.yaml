@@ -1,25 +1,24 @@
 loki:
   enabled: true
-  isDefault: false
-  url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
+
   readinessProbe:
     httpGet:
       path: /ready
       port: http-metrics
     initialDelaySeconds: 45
+
   livenessProbe:
     httpGet:
       path: /ready
       port: http-metrics
     initialDelaySeconds: 45
-  datasource:
-    jsonData: "{}"
-    uid: ""
-  limits_config:
-    retention_period: 168h  # each 7 days run the command to delete old logs (this alone will not delete logs)
-  compactor:
-    retention_enabled: true # enfore deleting logs
 
+  limits_config:
+    retention_period: 168h
+
+  compactor:
+    retention_enabled: true
+    
 promtail:
   enabled: true
   config:
