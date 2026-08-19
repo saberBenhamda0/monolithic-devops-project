@@ -34,6 +34,8 @@ grafana:
     port: 3000
   sidecar:
       dashboards:
+        resource: configmap
+        watchMethod: WATCH
         enabled: true
         label: grafana_dashboard
         labelValue: "1"
@@ -44,6 +46,9 @@ grafana:
         label: grafana_datasource
         labelValue: "1"
         searchNamespace: ALL
+        resource: configmap
+        watchMethod: WATCH
+        folder: /etc/grafana/provisioning/datasources
         # folder is fixed internally to /etc/grafana/provisioning/datasources — not configurable via `folder:` key
   image:
     tag: latest
