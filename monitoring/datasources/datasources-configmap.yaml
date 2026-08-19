@@ -28,3 +28,13 @@ data:
         isDefault: false
         jsonData:
           {}
+
+      - name: Loki2
+        type: loki
+        uid: loki2
+        access: proxy
+        url: "http://loki-stack:3100"
+        version: 1
+        isDefault: false
+        jsonData:
+          {}
