@@ -11,7 +11,7 @@ data:
     datasources:
       - name: Prometheus
         type: prometheus
-        uuid: prometheus
+        uid: prometheus
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus:9090
         isDefault: false
@@ -21,7 +21,7 @@ data:
           {}
       - name: Loki
         type: loki
-        uuid: loki
+        uid: loki
         access: proxy
         url: "http://loki-stack:3100"
         version: 1
