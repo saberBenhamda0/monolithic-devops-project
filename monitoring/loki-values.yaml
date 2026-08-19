@@ -38,12 +38,12 @@ grafana:
         label: grafana_dashboard
         labelValue: "1"
         folder: /tmp/dashboards
-        searchNamespace: monitoring
+        searchNamespace: ALL
       datasources:
         enabled: true
         label: grafana_datasource
         labelValue: "1"
-        searchNamespace: monitoring
+        searchNamespace: ALL
         # folder is fixed internally to /etc/grafana/provisioning/datasources — not configurable via `folder:` key
   image:
     tag: latest
