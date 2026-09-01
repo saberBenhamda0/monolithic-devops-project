@@ -4,18 +4,18 @@ variable "cidr_block" {
   description = "cidr that represnt number of the subnet and host we could have in the vpc"
 }
 
-
 variable "public_subnets" {
-  type = list(string)
-  description = "cidr  for the public_subnets"
+  type = list(object({
+    cidr_block = string
+    zone       = string
+    tags       = string
+  }))
 }
 
 variable "private_subnets" {
-  type = list(string)
-  description = "cidr for the private_subnets"
-}
-
-variable "zones" {
-    type = list(string)
-    description = "zones where subnet gonna live"
+  type = list(object({
+    cidr_block = string
+    zone       = string
+    tags       = string
+  }))
 }

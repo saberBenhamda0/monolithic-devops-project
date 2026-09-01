@@ -4,7 +4,7 @@ resource "aws_vpc" "vpc" {
     enable_dns_support = true
 
     tags = {
-        Name = "eks_vpc"
+        Name = "main infra vpc (k8 + jenkins + vpn)"
     }
 }
 
@@ -18,33 +18,30 @@ resource "aws_internet_gateway" "gt" {
 
 
 # creating 2 public subnets 
-
 resource "aws_subnet" "public_subnets" {
+  count                   = length(var.public_subnets)
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.public_subnets[count.index].cidr_block
+  availability_zone       = var.public_subnets[count.index].zone
+  map_public_ip_on_launch = true
 
-    count = length(var.public_subnets)
-
-    vpc_id = aws_vpc.vpc.id
-    cidr_block = var.public_subnets[count.index]
-    availability_zone = var.zones[count.index]
-    map_public_ip_on_launch = true
-
-    tags = {
-        Name = "public_subnet_${count.index}"
-    }
+  tags = {
+    Name    = "public_subnet_${count.index}"
+    purpose = var.public_subnets[count.index].tags
+  }
 }
 
 # creating 2 private subnets 
 resource "aws_subnet" "private_subnets" {
+  count             = length(var.private_subnets)
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = var.private_subnets[count.index].cidr_block
+  availability_zone = var.private_subnets[count.index].zone
 
-    count = length(var.private_subnets)
-
-    vpc_id = aws_vpc.vpc.id
-    cidr_block = var.private_subnets[count.index]
-    availability_zone = var.zones[count.index]
-    
-    tags = {
-        Name = "private_subnet_${count.index}"
-    }
+  tags = {
+    Name    = "private_subnet_${count.index}"
+    purpose = var.private_subnets[count.index].tags
+  }
 }
 
 
