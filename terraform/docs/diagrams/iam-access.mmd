@@ -1,0 +1,42 @@
+erDiagram
+    EKS_CLUSTER ||--|| EKS_CLUSTER_ROLE : "uses"
+    EKS_CLUSTER_ROLE ||--o{ AWS_MANAGED_POLICY : "attached by"
+    NODE_GROUP ||--|| EKS_NODE_ROLE : "uses"
+    EKS_NODE_ROLE ||--o{ AWS_MANAGED_POLICY : "attached by"
+    ADMIN_ROLE ||--o{ CUSTOM_POLICY : "receives"
+    AUTOSCALER_ROLE ||--o{ CUSTOM_POLICY : "receives"
+    LBC_ROLE ||--o{ CUSTOM_POLICY : "receives"
+    DEVELOPER_USER ||--o{ CUSTOM_POLICY : "receives"
+    MANAGER_USER ||--o{ CUSTOM_POLICY : "receives"
+    CUSTOM_POLICY ||--o{ POLICY_ATTACHMENT : "referenced by"
+    POLICY_ATTACHMENT }o--|| ADMIN_ROLE : "role target"
+    POLICY_ATTACHMENT }o--|| AUTOSCALER_ROLE : "role target"
+    POLICY_ATTACHMENT }o--|| LBC_ROLE : "role target"
+    POLICY_ATTACHMENT }o--|| DEVELOPER_USER : "user target"
+    POLICY_ATTACHMENT }o--|| MANAGER_USER : "user target"
+    EKS_CLUSTER ||--o{ ACCESS_ENTRY : "has"
+    ACCESS_ENTRY }o--|| ADMIN_ROLE : "principal"
+    ACCESS_ENTRY }o--|| DEVELOPER_USER : "principal"
+
+    EKS_CLUSTER {
+        string name "dev-eks"
+        string version "1.32"
+    }
+    NODE_GROUP {
+        string name "general"
+        string instance_type "t3.medium"
+    }
+    CUSTOM_POLICY {
+        string eks_admin "AmazonEKSAdminPolicy"
+        string eks_manager "AmazonEKSAssumeAdminPolicy"
+        string eks_developer "AmazonEKSDeveloperPolicy"
+        string autoscaler "cluster-autoscaler"
+        string load_balancer "AWSLoadBalancerController"
+    }
+    POLICY_ATTACHMENT {
+        string resource "aws_iam_*_policy_attachment"
+    }
+    ACCESS_ENTRY {
+        string admin_group "my-admin"
+        string developer_group "developers"
+    }

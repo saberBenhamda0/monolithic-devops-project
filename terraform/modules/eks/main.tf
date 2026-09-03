@@ -1,15 +1,19 @@
+# fetch a temporarly api token to communicaate with aws api
 data "aws_eks_cluster_auth" "eks" {
   name = aws_eks_cluster.eks.name
 }
 
+# read metadata about the cluster
 data "aws_eks_cluster" "eks" {
   name = aws_eks_cluster.eks.name
 }
 
+# The EKS control plane itself
 resource "aws_eks_cluster" "eks" {
   name = var.eks_name
   version = var.eks_version
-    role_arn = aws_iam_role.eks.arn
+  # role_arn aws resource number the IAM role the control plane assumes to manage AWS resources
+  role_arn = aws_iam_role.eks.arn
 
   vpc_config {
     endpoint_private_access = false
@@ -26,7 +30,7 @@ resource "aws_eks_cluster" "eks" {
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
 }
 
-# cluster auto scaler
+# give premission to the cluster auto scaler. withot this we hvae autoscaler in the main.tf but cannot communicate with aws 
 resource "aws_eks_pod_identity_association" "cluster_autoscaler" {
   cluster_name    = aws_eks_cluster.eks.name
   namespace       = "kube-system"
@@ -48,7 +52,7 @@ resource "aws_eks_node_group" "general" {
 // this will not work until we add the cluster auto scaler service.
   scaling_config {
     desired_size = 1
-    max_size     = 3
+    max_size     = 2
     min_size     = 0
   }
 

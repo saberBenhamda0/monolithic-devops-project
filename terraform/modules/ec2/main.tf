@@ -12,26 +12,39 @@
   }
 
 
-  resource "aws_network_interface" "example" {
-    subnet_id       = var.subnet_id
-    private_ips     = [var.instances["vpn"].private_ip]
-    security_groups = [var.instances["vpn"].security_group_keys[0]]
-    tags = { Name = "primary_network_interface" }
-  }
+resource "aws_network_interface" "ec2_interface" {
+  for_each = var.instances
+
+  subnet_id       = var.subnet_id
+  private_ips     = [each.value.private_ip]
+  security_groups = each.value.security_group_keys
+
+  tags = merge(
+    { Name = "${each.key}-network-interface" },
+    each.value.tags
+  )
+}
+
 
   resource "aws_eip" "vpn_eip" {
-    domain            = "vpc"
-    network_interface = aws_network_interface.example.id
-    depends_on        = [var.aws_internet_gateway_id, aws_instance.vpn_instance]
-  }
 
-  resource "aws_instance" "vpn_instance" {
-    ami           = var.instances["vpn"].ami
-    instance_type = "t2.micro"
-    key_name = var.instances["vpn"].ssh_key_name
+  domain            = "vpc"
+  network_interface = aws_network_interface.ec2_interface["vpn"].id
+
+  depends_on = [aws_instance.instances]
+}
+
+  resource "aws_instance" "instances" {
+
+  for_each = var.instances
+
+  ami           = each.value.ami
+  instance_type = each.value.instance_type
+  key_name      = each.value.ssh_key_name
+
     
     network_interface {
-      network_interface_id = aws_network_interface.example.id
+      network_interface_id = aws_network_interface.ec2_interface[each.key].id
       device_index = 0
     }
     credit_specification {

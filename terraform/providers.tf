@@ -10,12 +10,20 @@ terraform {
     }
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.35  "
+      version = "~> 5.35"
     }
-  argocd = {
+    argocd = {
       source  = "argoproj-labs/argocd"
       version = "7.12.4"
     }
+  }
+
+  backend "s3" {
+    bucket         = "backend2you-terraform-state"
+    key            = "global/s3/terraform.tfstate" # path inside the bucket
+    region         = "us-east-1"
+    use_lockfile = true
+    encrypt        = true
   }
 }
 
@@ -38,10 +46,10 @@ provider "argocd" {
   # this option if you want argo to public avaible.
   # server_addr = "a1b2c3d4e5.elb.amazonaws.com:443"
 
-  username    = "admin"
-  password    = "gYdHpkrrpvbOk7Jf" # Use a secret or variable!
-  insecure    = true
-  
+  username = var.argocd_username
+  password = var.argocd_password
+  insecure = true
+
   # this if you wanat to leaave argocd private
   port_forward_with_namespace = "argocd"
 

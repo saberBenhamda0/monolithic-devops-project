@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "frontend" {
-  bucket = "manga2you_frontend" # must be globally unique across all of AWS
+  bucket = "manga2you-frontend" # must be globally unique across all of AWS
 
   tags = {
     Name = "Frontend Bucket"

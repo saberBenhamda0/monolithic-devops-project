@@ -15,3 +15,7 @@ output "vpc_id" {
 output "aws_internet_gateway_id" {
   value = aws_internet_gateway.gt.id
 }
+
+output "aws_internet_gateway_arn" {
+  value = aws_internet_gateway.gt.arn
+}

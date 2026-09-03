@@ -1,0 +1,44 @@
+flowchart TB
+    internet((Internet))
+
+    subgraph aws[AWS account]
+        subgraph vpc[VPC 10.0.0.0/16]
+            igw[Internet Gateway]
+            subgraph public[Public subnets]
+                pub1[us-east-1a\n10.0.1.0/24]
+                pub2[us-east-1b\n10.0.2.0/24]
+                nat[NAT Gateway + EIP]
+                nodes[EKS general nodes\npublic subnet placement]
+            end
+            subgraph private[Private subnets]
+                priv1[us-east-1a\n10.0.3.0/24]
+                priv2[us-east-1b\n10.0.4.0/24]
+                control[EKS control-plane ENIs]
+            end
+        end
+        iam[IAM roles, users,\npolicies, attachments]
+        eks[EKS dev-eks\nKubernetes 1.32]
+    end
+
+    internet --> igw
+    igw --> pub1
+    igw --> pub2
+    pub1 --> nat
+    nat --> priv1
+    nat --> priv2
+    priv1 --> control
+    priv2 --> control
+    pub1 --> nodes
+    pub2 --> nodes
+    control --> eks
+    nodes --> eks
+    iam -. cluster and workload permissions .-> eks
+
+    subgraph k8s[Kubernetes add-ons]
+        metrics[Metrics Server]
+        autoscaler[Cluster Autoscaler]
+        argocd[Argo CD]
+    end
+    eks --> metrics
+    eks --> autoscaler
+    eks --> argocd

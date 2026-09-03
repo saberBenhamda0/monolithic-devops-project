@@ -111,6 +111,6 @@ resource "aws_wafv2_web_acl_logging_configuration" "waf_logging" {
 
 # this used to attach the WAF to a aws internet gatewaay resource
 resource "aws_wafv2_web_acl_association" "infra_waf_assoc" {
-  resource_arn = var.aws_internet_gateway_id
+  resource_arn = var.aws_internet_gateway_arn
   web_acl_arn  = aws_wafv2_web_acl.infra_waf.arn
 }
