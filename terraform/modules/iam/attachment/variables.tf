@@ -12,3 +12,11 @@ variable "eks_manager_policy_arn" { type = string }
 
 variable "aws_lbc_policy_arn" { type = string }
 variable "aws_lbc_role_name" { type = string }
+
+variable "jenkins_frontend_deploy_policy_arn" { type = string}
+
+variable "pipelines_admin_name" { type = string}
+
+variable "jenkins_deploy_role_arn" {type = string}
+
+variable "jenkins_deploy_role_name" {type = string}

@@ -5,6 +5,8 @@ module "role" {
 module "policy" {
   source = "./policy"
   eks_admin_role_arn = module.role.eks_admin_role_arn
+  aws_cloudfront_distribution_frontend_id = var.aws_cloudfront_distribution_frontend_id
+  s3_arn = var.s3_arn
 }
 
 module "user" {
@@ -28,12 +30,22 @@ module "attachment" {
 
   aws_lbc_role_name             = module.role.aws_lbc_role_name
   aws_lbc_policy_arn        = module.policy.aws_lbc_policy_arn
+
+  jenkins_frontend_deploy_policy_arn = module.policy.jenkins_frontend_deploy_policy_arn
+  pipelines_admin_name = module.user.pipelines_admin_name
+
+
+  jenkins_deploy_role_arn = module.role.jenkins_deploy_role_arn
+  jenkins_deploy_role_name = module.role.jenkins_deploy_role_name
 }
 
 # Access Entries
 resource "aws_eks_access_entry" "manager" {
+
   cluster_name      = var.eks_name
   principal_arn     = module.role.eks_admin_role_arn
+  
+  # the kubernetes RBAC group this eks_acces_entry map to
   kubernetes_groups = ["my-admin"]
 
     depends_on = [ var.eks ]
@@ -42,6 +54,8 @@ resource "aws_eks_access_entry" "manager" {
 resource "aws_eks_access_entry" "developer" {
   cluster_name      = var.eks_name
   principal_arn     = module.user.developer_user_arn
+  
+  # the kubernetes RBAC group this eks_acces_entry map to
   kubernetes_groups = ["developers"]
 
   depends_on = [ var.eks ]

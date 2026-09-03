@@ -55,3 +55,20 @@ resource "aws_iam_role" "aws_lbc" {
   name               = "eks-aws-lbc"
   assume_role_policy = data.aws_iam_policy_document.aws_lbc.json
 }
+
+resource "aws_iam_role" "jenkins_deploy_role" {
+  name = "jenkins-frontend-deploy-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"  # or whatever trusts this role
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}

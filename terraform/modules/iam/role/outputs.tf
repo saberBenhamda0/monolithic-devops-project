@@ -17,3 +17,11 @@ output "cluster_autoscaler_role_name" {
 output "aws_lbc_role_name" {
   value = aws_iam_role.aws_lbc.name
 }
+
+output "jenkins_deploy_role_arn" {
+  value = aws_iam_role.jenkins_deploy_role.arn
+}
+
+output "jenkins_deploy_role_name" {
+  value = aws_iam_role.jenkins_deploy_role.name
+}

@@ -17,3 +17,7 @@ output "cluster_autoscaler_policy_arn" {
 output "aws_lbc_policy_arn" {
   value = aws_iam_policy.aws_lbc.arn
 }
+
+output "jenkins_frontend_deploy_policy_arn" {
+    value = aws_iam_policy.jenkins_frontend_deploy.arn
+}

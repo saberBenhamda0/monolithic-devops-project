@@ -7,3 +7,7 @@ resource "aws_iam_user" "manager" {
   name = "manager"
   tags = var.tags
 }
+
+resource "aws_iam_user" "pipelines_admin" {
+  name = "pipelinesAdmin"
+}
