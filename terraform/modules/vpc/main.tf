@@ -1,19 +1,19 @@
 resource "aws_vpc" "vpc" {
-    cidr_block = var.cidr_block
-    enable_dns_hostnames = true
-    enable_dns_support = true
+  cidr_block           = var.cidr_block
+  enable_dns_hostnames = true
+  enable_dns_support   = true
 
-    tags = {
-        Name = "main infra vpc (k8 + jenkins + vpn)"
-    }
+  tags = {
+    Name = "main infra vpc (k8 + jenkins + vpn)"
+  }
 }
 
 resource "aws_internet_gateway" "gt" {
-    vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.vpc.id
 
-    tags = {
-        Name = "vpc_internet_gateway"
-    }
+  tags = {
+    Name = "vpc_internet_gateway"
+  }
 }
 
 
@@ -47,20 +47,20 @@ resource "aws_subnet" "private_subnets" {
 
 # public routing tables with there association with subnets
 resource "aws_route_table" "public_routing_table" {
-    vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.vpc.id
 
-    route { 
-        gateway_id = aws_internet_gateway.gt.id
-        cidr_block = "0.0.0.0/0"
-    }
+  route {
+    gateway_id = aws_internet_gateway.gt.id
+    cidr_block = "0.0.0.0/0"
+  }
 }
 
 resource "aws_route_table_association" "public_routing_table_association" {
 
-    count = length(var.public_subnets)
+  count = length(var.public_subnets)
 
-    subnet_id = aws_subnet.public_subnets[count.index].id
-    route_table_id = aws_route_table.public_routing_table.id
+  subnet_id      = aws_subnet.public_subnets[count.index].id
+  route_table_id = aws_route_table.public_routing_table.id
 }
 
 
@@ -70,24 +70,24 @@ resource "aws_eip" "nat_eip" {
 
 # NAT gateway 
 resource "aws_nat_gateway" "ng" {
-    allocation_id = aws_eip.nat_eip.id
-    subnet_id = aws_subnet.public_subnets[0].id
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public_subnets[0].id
 }
 
 # private route table
 resource "aws_route_table" "private_route_table" {
-    vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.vpc.id
 
-    route {
-        cidr_block = "0.0.0.0/0"
-        nat_gateway_id = aws_nat_gateway.ng.id
-    }
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.ng.id
+  }
 }
 
 resource "aws_route_table_association" "private_routing_table_association" {
 
-    count = length(var.private_subnets)
+  count = length(var.private_subnets)
 
-    subnet_id = aws_subnet.private_subnets[count.index].id
-    route_table_id = aws_route_table.private_route_table.id
+  subnet_id      = aws_subnet.private_subnets[count.index].id
+  route_table_id = aws_route_table.private_route_table.id
 }

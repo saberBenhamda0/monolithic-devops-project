@@ -3,5 +3,5 @@ variable "aws_cloudwatch_waf_logs_arn" {
 }
 
 variable "aws_internet_gateway_arn" {
-  type = string 
+  type = string
 }

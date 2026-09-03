@@ -31,7 +31,7 @@ resource "aws_wafv2_web_acl" "infra_waf" {
         # action of the sub-managed-rules in this case it just log and not block 
         rule_action_override {
 
-            # this log request with very long query string 
+          # this log request with very long query string 
           name = "SizeRestrictions_QUERYSTRING"
 
           action_to_use {
@@ -70,13 +70,13 @@ resource "aws_wafv2_web_acl" "infra_waf" {
     }
   }
 
-# standard aws resources tags
+  # standard aws resources tags
   # tags = {
   #   Tag1 = "Value1"
   #   Tag2 = "Value2"
   # }
 
-/*
+  /*
 Relevant to AWS WAF's CAPTCHA/Challenge and bot-control token features.
  It lists domains that are allowed to receive/embed the WAF integration token
 */
@@ -95,13 +95,13 @@ Relevant to AWS WAF's CAPTCHA/Challenge and bot-control token features.
 # 2. Wire WAF to write into it
 resource "aws_wafv2_web_acl_logging_configuration" "waf_logging" {
 
-# the arn of WAF that going to write logs 
-  resource_arn            = aws_wafv2_web_acl.infra_waf.arn
+  # the arn of WAF that going to write logs 
+  resource_arn = aws_wafv2_web_acl.infra_waf.arn
   # the destination arn
   log_destination_configs = [var.aws_cloudwatch_waf_logs_arn]
 
 
-# this part remove the headers from logging when sending logs to LGTM.
+  # this part remove the headers from logging when sending logs to LGTM.
   redacted_fields {
     single_header {
       name = "authorization"

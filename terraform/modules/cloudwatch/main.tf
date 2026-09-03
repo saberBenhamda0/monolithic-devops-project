@@ -78,8 +78,8 @@ to control retention and avoid surprise bills.
 #   alarm_actions       = [aws_sns_topic.alerts.arn]
 #   ok_actions          = [aws_sns_topic.alerts.arn]
 
-  
-  
+
+
 # # the comparison logic.  
 #   comparison_operator = "GreaterThanThreshold"
 

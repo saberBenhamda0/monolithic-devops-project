@@ -45,7 +45,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
 
     noncurrent_version_expiration {
       newer_noncurrent_versions = 15
-      noncurrent_days            = 1
+      noncurrent_days           = 1
     }
   }
 }

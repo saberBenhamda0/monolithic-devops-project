@@ -1,6 +1,6 @@
 variable "s3_bucket_id" {
-   type = string
-   description = "s3 bucket id where frontend is hosted"
+  type        = string
+  description = "s3 bucket id where frontend is hosted"
 }
 
 variable "bucket_regional_domain_name" {

@@ -11,20 +11,20 @@ variable "db_password" {
 }
 
 variable "db_name" {
-  type        = string
+  type = string
 }
 
 variable "public_subnet_postgres_east_1a_id" {
-    type = string
-    description = "the first subnet id for postgres DB"
+  type        = string
+  description = "the first subnet id for postgres DB"
 }
 
 variable "public_subnet_postgres_east_1b_id" {
-    type = string
-    description = "the second subnet id for postgres DB"
+  type        = string
+  description = "the second subnet id for postgres DB"
 }
 
 variable "postgres_sg" {
-  type = string
+  type        = string
   description = "the id of the postgres security group"
 }

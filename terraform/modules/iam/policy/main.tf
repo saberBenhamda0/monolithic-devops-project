@@ -1,5 +1,5 @@
 resource "aws_iam_policy" "eks_admin" {
-  name = "AmazonEKSAdminPolicy"
+  name   = "AmazonEKSAdminPolicy"
   policy = <<POLICY
 {
     "Version": "2012-10-17",
@@ -27,7 +27,7 @@ POLICY
 }
 
 resource "aws_iam_policy" "eks_manager" {
-  name = "AmazonEKSAssumeAdminPolicy"
+  name   = "AmazonEKSAssumeAdminPolicy"
   policy = <<POLICY
 {
     "Version": "2012-10-17",
@@ -50,8 +50,8 @@ resource "aws_iam_policy" "eks_developers" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "eks:DescribeCluster",
           "eks:ListClusters"
         ]

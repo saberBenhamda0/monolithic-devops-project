@@ -19,11 +19,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "backend2you-terraform-state"
-    key            = "global/s3/terraform.tfstate" # path inside the bucket
-    region         = "us-east-1"
+    bucket       = "backend2you-terraform-state"
+    key          = "global/s3/terraform.tfstate" # path inside the bucket
+    region       = "us-east-1"
     use_lockfile = true
-    encrypt        = true
+    encrypt      = true
   }
 }
 

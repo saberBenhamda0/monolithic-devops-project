@@ -19,5 +19,5 @@ output "aws_lbc_policy_arn" {
 }
 
 output "jenkins_frontend_deploy_policy_arn" {
-    value = aws_iam_policy.jenkins_frontend_deploy.arn
+  value = aws_iam_policy.jenkins_frontend_deploy.arn
 }

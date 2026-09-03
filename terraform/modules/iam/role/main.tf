@@ -65,7 +65,7 @@ resource "aws_iam_role" "jenkins_deploy_role" {
       {
         Effect = "Allow"
         Principal = {
-          Service = "ec2.amazonaws.com"  # or whatever trusts this role
+          Service = "ec2.amazonaws.com" # or whatever trusts this role
         }
         Action = "sts:AssumeRole"
       }

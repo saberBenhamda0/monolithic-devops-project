@@ -1,5 +1,5 @@
 output "token" {
-  value =  data.aws_eks_cluster_auth.eks.token
+  value = data.aws_eks_cluster_auth.eks.token
 }
 
 output "aws_eks_cluster" {
@@ -11,5 +11,5 @@ output "aws_eks_node_group" {
 }
 
 output "eks" {
-    value = aws_eks_cluster.eks
+  value = aws_eks_cluster.eks
 }

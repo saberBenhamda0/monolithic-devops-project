@@ -3,8 +3,8 @@ module "vpc" {
   cidr_block = "10.0.0.0/16" # 2^16
 
   public_subnets = [
-    { cidr_block = "10.0.1.0/24",  zone = "us-east-1a", tags = "public_subnet_k8" },
-    { cidr_block = "10.0.2.0/24",  zone = "us-east-1b", tags = "public_subnet_k8" },
+    { cidr_block = "10.0.1.0/24", zone = "us-east-1a", tags = "public_subnet_k8" },
+    { cidr_block = "10.0.2.0/24", zone = "us-east-1b", tags = "public_subnet_k8" },
     { cidr_block = "10.0.10.0/24", zone = "us-east-1a", tags = "public_subnet_vpn" },
     { cidr_block = "10.0.11.0/24", zone = "us-east-1b", tags = "public_subnet_jenkins" },
     { cidr_block = "10.0.12.0/24", zone = "us-east-1a", tags = "public_subnet_postgres_east_1a" },
@@ -17,17 +17,17 @@ module "vpc" {
   ]
 }
 
-module "iam" {
-  source = "./modules/iam"
+# module "iam" {
+#   source = "./modules/iam"
 
-  eks_name = local.eks_name
+#   eks_name = local.eks_name
 
-  eks = module.eks.eks
+#   eks = module.eks.eks
 
-  aws_cloudfront_distribution_frontend_id = module.cloudfront.aws_cloudfront_distribution_frontend_id
+#   aws_cloudfront_distribution_frontend_id = module.cloudfront.aws_cloudfront_distribution_frontend_id
 
-  s3_arn = module.s3.s3_arn
-}
+#   s3_arn = module.s3.s3_arn
+# }
 
 
 data "aws_ami" "ubuntu" {
@@ -47,33 +47,33 @@ data "aws_ami" "ubuntu" {
 }
 
 module "ssh_keys" {
-    source = "./modules/ssh_keys"
+  source = "./modules/ssh_keys"
 
-    deployer_public_key = var.deployer_public_key
+  deployer_public_key = var.deployer_public_key
 }
 
 module "security_group_keys" {
-  source = "./modules/security_group"
-  vpc_id = module.vpc.vpc_id
+  source                        = "./modules/security_group"
+  vpc_id                        = module.vpc.vpc_id
   k8_public_subnets_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-  vpn_cicd = ["10.0.10.0/24"]
+  vpn_cicd                      = ["10.0.10.0/24"]
 }
 
 
 module "ec2" {
   source = "./modules/ec2"
 
-  vpc_id = module.vpc.vpc_id
-  subnet_id               =  module.vpc.public_subnets[2]
+  vpc_id                  = module.vpc.vpc_id
+  subnet_id               = module.vpc.public_subnets[2]
   aws_internet_gateway_id = module.vpc.aws_internet_gateway_id
 
   instances = {
     "vpn" = {
       # the ami
-      ami             = data.aws_ami.ubuntu.id
-      instance_type   = "t2.micro"
-      private_ip      = "10.0.10.10"
-      ssh_key_name    = module.ssh_keys.ssh_developer_key_id
+      ami           = data.aws_ami.ubuntu.id
+      instance_type = "t2.micro"
+      private_ip    = "10.0.10.10"
+      ssh_key_name  = module.ssh_keys.ssh_developer_key_id
 
       security_group_keys = [module.security_group_keys.security_group_id]
 
@@ -83,10 +83,10 @@ module "ec2" {
     },
 
     "jenkins" = {
-      ami             = data.aws_ami.ubuntu.id
-      instance_type   = "t2.micro"
-      private_ip      = "10.0.10.20"
-      ssh_key_name    = module.ssh_keys.ssh_developer_key_id
+      ami           = data.aws_ami.ubuntu.id
+      instance_type = "t2.micro"
+      private_ip    = "10.0.10.20"
+      ssh_key_name  = module.ssh_keys.ssh_developer_key_id
 
       security_group_keys = [module.security_group_keys.jenkins_security_group_id]
 
@@ -102,18 +102,18 @@ module "postgreSQL" {
 
   source = "./modules/postgreSQL"
 
-  db_username = var.db_username
-  db_password = var.db_password
-  db_name = var.db_name
+  db_username                       = var.db_username
+  db_password                       = var.db_password
+  db_name                           = var.db_name
   public_subnet_postgres_east_1a_id = module.vpc.public_subnets[4]
   public_subnet_postgres_east_1b_id = module.vpc.public_subnets[5]
 
   postgres_sg = module.security_group_keys.postrgesql_security_group_id
 
-  
+
 }
 
-module "cloudwatch" {  
+module "cloudwatch" {
   source = "./modules/cloudwatch"
 }
 
@@ -128,29 +128,29 @@ module "waf" {
 }
 
 module "s3" {
-  source = "./modules/s3" 
+  source = "./modules/s3"
 }
 
 module "cloudfront" {
   source = "./modules/cloudfront"
 
-  s3_bucket_id =  module.s3.s3_bucket_id
+  s3_bucket_id                = module.s3.s3_bucket_id
   bucket_regional_domain_name = module.s3.bucket_regional_domain_name
-  s3_bucket = module.s3.s3_bucket
-  s3_arn = module.s3.s3_arn
+  s3_bucket                   = module.s3.s3_bucket
+  s3_arn                      = module.s3.s3_arn
 }
 
 
-module "eks" {
-  source = "./modules/eks"
+# module "eks" {
+#   source = "./modules/eks"
 
-  eks_name = local.eks_name
-  eks_version = local.eks_version
-  private_subnets = module.vpc.private_subnets
-  public_subnets = module.vpc.public_subnets
-  cluster_autoscaler_arn = module.iam.cluster_autoscaler_arn
+#   eks_name = local.eks_name
+#   eks_version = local.eks_version
+#   private_subnets = module.vpc.private_subnets
+#   public_subnets = module.vpc.public_subnets
+#   cluster_autoscaler_arn = module.iam.cluster_autoscaler_arn
 
-}
+# }
 
 
 # # metrics servier for pod auto scaling

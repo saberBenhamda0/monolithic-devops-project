@@ -76,13 +76,13 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
     # this section configure and tell CF what are considere as 2 different requests for cachine
     forwarded_values {
-        # when this false the request /product?color=red and /product?color=blue are having the same cache served.
+      # when this false the request /product?color=red and /product?color=blue are having the same cache served.
       query_string = false
 
-        # optionally limit to specific ones:
-        #query_string_cache_keys = ["id", "page"]
+      # optionally limit to specific ones:
+      #query_string_cache_keys = ["id", "page"]
 
-    # what get forwarded to the origin 
+      # what get forwarded to the origin 
       cookies {
         forward = "none"
       }
@@ -96,9 +96,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   # Cache behavior with precedence 0
   ordered_cache_behavior {
-    path_pattern     = "/content/immutable/*"
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD", "OPTIONS"]
+    path_pattern    = "/content/immutable/*"
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD", "OPTIONS"]
 
     # CDN can multiple sources for the cache that why we use 
     # target_origin_id to specify which cache source should be in this cache behavior
@@ -122,9 +122,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   # Cache behavior with precedence 1
   ordered_cache_behavior {
-    path_pattern     = "/content/*"
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
+    path_pattern    = "/content/*"
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD"]
     # we put the s3 bucket where the frontend is hosted.
     target_origin_id = var.s3_bucket_id
 

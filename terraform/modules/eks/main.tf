@@ -10,14 +10,14 @@ data "aws_eks_cluster" "eks" {
 
 # The EKS control plane itself
 resource "aws_eks_cluster" "eks" {
-  name = var.eks_name
+  name    = var.eks_name
   version = var.eks_version
   # role_arn aws resource number the IAM role the control plane assumes to manage AWS resources
   role_arn = aws_iam_role.eks.arn
 
   vpc_config {
     endpoint_private_access = false
-    endpoint_public_access = true
+    endpoint_public_access  = true
     // this is where the controle panel be created so we need only private subnets
     subnet_ids = var.private_subnets
   }
@@ -26,7 +26,7 @@ resource "aws_eks_cluster" "eks" {
     authentication_mode                         = "API"
     bootstrap_cluster_creator_admin_permissions = true
   }
-  
+
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
 }
 
@@ -47,9 +47,9 @@ resource "aws_eks_node_group" "general" {
   subnet_ids = var.public_subnets
 
   capacity_type  = "ON_DEMAND" // regular es2 instance for nodes
-    instance_types = ["t3.medium"]
+  instance_types = ["t3.medium"]
 
-// this will not work until we add the cluster auto scaler service.
+  // this will not work until we add the cluster auto scaler service.
   scaling_config {
     desired_size = 1
     max_size     = 2
@@ -60,7 +60,7 @@ resource "aws_eks_node_group" "general" {
     max_unavailable = 1 // durning rollback or scaling only 1 can be unavaible
   }
 
-// labeel used for orgnized
+  // labeel used for orgnized
   labels = {
     role = "general"
   }
@@ -134,7 +134,7 @@ resource "aws_iam_role_policy_attachment" "amazon_ec2_container_registry_read_on
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.eks.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}   
+}
 
 resource "aws_iam_role_policy_attachment" "eks_vpc_policy" {
   role       = aws_iam_role.eks.name
