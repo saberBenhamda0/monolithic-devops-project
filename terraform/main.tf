@@ -2,19 +2,20 @@ module "vpc" {
   source     = "./modules/vpc"
   cidr_block = "10.0.0.0/16" # 2^16
 
-  public_subnets = [
-    { cidr_block = "10.0.1.0/24", zone = "us-east-1a", tags = "public_subnet_k8" },
-    { cidr_block = "10.0.2.0/24", zone = "us-east-1b", tags = "public_subnet_k8" },
-    { cidr_block = "10.0.10.0/24", zone = "us-east-1a", tags = "public_subnet_vpn" },
-    { cidr_block = "10.0.11.0/24", zone = "us-east-1b", tags = "public_subnet_jenkins" },
-    { cidr_block = "10.0.12.0/24", zone = "us-east-1a", tags = "public_subnet_postgres_east_1a" },
-    { cidr_block = "10.0.13.0/24", zone = "us-east-1b", tags = "public_subnet_postgres_east_1b" },
-  ]
+  public_subnets = {
+    public_subnet_k8_a               = { cidr_block = "10.0.1.0/24",  zone = "us-east-1a" }
+    public_subnet_k8_b               = { cidr_block = "10.0.2.0/24",  zone = "us-east-1b" }
+    public_subnet_vpn                = { cidr_block = "10.0.10.0/24", zone = "us-east-1a" }
+    public_subnet_vault              = { cidr_block = "10.0.14.0/24", zone = "us-east-1a" },
+    public_subnet_jenkins            = { cidr_block = "10.0.11.0/24", zone = "us-east-1b" }
+    public_subnet_postgres_east_1a   = { cidr_block = "10.0.12.0/24", zone = "us-east-1a" }
+    public_subnet_postgres_east_1b   = { cidr_block = "10.0.13.0/24", zone = "us-east-1b" }
+  }
 
-  private_subnets = [
-    { cidr_block = "10.0.3.0/24", zone = "us-east-1a", tags = "private_subnet_k8" },
-    { cidr_block = "10.0.4.0/24", zone = "us-east-1b", tags = "private_subnet_k8" },
-  ]
+  private_subnets = {
+    private_subnet_k8_a = { cidr_block = "10.0.3.0/24", zone = "us-east-1a" }
+    private_subnet_k8_b = { cidr_block = "10.0.4.0/24", zone = "us-east-1b" }
+  }
 }
 
 # module "iam" {
@@ -59,19 +60,23 @@ module "security_group_keys" {
   vpn_cicd                      = ["10.0.10.0/24"]
 }
 
+module "ebs" {
+  source = "./modules/ebs"
+
+  ec2_vault_id = module.ec2.ec2_ids["vault"]
+}
 
 module "ec2" {
   source = "./modules/ec2"
 
   vpc_id                  = module.vpc.vpc_id
-  subnet_id               = module.vpc.public_subnets[2]
   aws_internet_gateway_id = module.vpc.aws_internet_gateway_id
 
   instances = {
     "vpn" = {
-      # the ami
       ami           = data.aws_ami.ubuntu.id
       instance_type = "t2.micro"
+      subnet_id     = module.vpc.public_subnets["public_subnet_vpn"].id
       private_ip    = "10.0.10.10"
       ssh_key_name  = module.ssh_keys.ssh_developer_key_id
 
@@ -85,7 +90,8 @@ module "ec2" {
     "jenkins" = {
       ami           = data.aws_ami.ubuntu.id
       instance_type = "t2.micro"
-      private_ip    = "10.0.10.20"
+      subnet_id     = module.vpc.public_subnets["public_subnet_jenkins"].id
+      private_ip    = "10.0.11.10"
       ssh_key_name  = module.ssh_keys.ssh_developer_key_id
 
       security_group_keys = [module.security_group_keys.jenkins_security_group_id]
@@ -93,10 +99,48 @@ module "ec2" {
       tags = {
         Name = "jenkins-instance"
       }
+    },
+
+    "vault" = {
+      ami           = data.aws_ami.ubuntu.id
+      instance_type = "t2.micro"
+      subnet_id     = module.vpc.public_subnets["public_subnet_vault"].id
+      private_ip    = "10.0.14.10"
+      ssh_key_name  = module.ssh_keys.ssh_developer_key_id
+
+      security_group_keys = [module.security_group_keys.vault_sg]
+
+      tags = {
+        Name = "vault-instance"
+      }
+
+      user_data_script = <<-EOF
+          #!/bin/bash
+          set -euxo pipefail
+
+          MOUNT_POINT="/mnt/vault-data"
+          DEVICE="/dev/xvdf"
+
+          for i in $(seq 1 30); do
+            [ -e "$DEVICE" ] && break
+            sleep 2
+          done
+
+          if ! file -s "$DEVICE" | grep -q filesystem; then
+            mkfs -t ext4 "$DEVICE"
+          fi
+
+          mkdir -p "$MOUNT_POINT"
+          mount "$DEVICE" "$MOUNT_POINT"
+
+          UUID=$(blkid -s UUID -o value "$DEVICE")
+          grep -q "$UUID" /etc/fstab || echo "UUID=$UUID $MOUNT_POINT ext4 defaults,nofail 0 2" >> /etc/fstab
+      EOF
     }
   }
-}
 
+  depends_on = [module.vpc, module.security_group_keys, module.ssh_keys]
+}
 
 module "postgreSQL" {
 
@@ -105,8 +149,8 @@ module "postgreSQL" {
   db_username                       = var.db_username
   db_password                       = var.db_password
   db_name                           = var.db_name
-  public_subnet_postgres_east_1a_id = module.vpc.public_subnets[4]
-  public_subnet_postgres_east_1b_id = module.vpc.public_subnets[5]
+  public_subnet_postgres_east_1a_id = module.vpc.public_subnets["public_subnet_postgres_east_1a"].id
+  public_subnet_postgres_east_1b_id = module.vpc.public_subnets["public_subnet_postgres_east_1b"].id
 
   postgres_sg = module.security_group_keys.postrgesql_security_group_id
 
@@ -118,14 +162,14 @@ module "cloudwatch" {
 }
 
 
-module "waf" {
-  source = "./modules/waf"
+# module "waf" {
+#   source = "./modules/waf"
 
-  aws_cloudwatch_waf_logs_arn = module.cloudwatch.aws_cloudwatch_waf_logs_arn
+#   aws_cloudwatch_waf_logs_arn = module.cloudwatch.aws_cloudwatch_waf_logs_arn
 
-  aws_internet_gateway_arn = module.vpc.aws_internet_gateway_arn
+#   aws_internet_gateway_arn = module.vpc.aws_internet_gateway_arn
 
-}
+# }
 
 module "s3" {
   source = "./modules/s3"
@@ -133,6 +177,7 @@ module "s3" {
 
 module "cloudfront" {
   source = "./modules/cloudfront"
+
 
   s3_bucket_id                = module.s3.s3_bucket_id
   bucket_regional_domain_name = module.s3.bucket_regional_domain_name

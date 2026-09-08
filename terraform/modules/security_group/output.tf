@@ -9,3 +9,7 @@ output "postrgesql_security_group_id" {
 output "jenkins_security_group_id" {
   value = aws_security_group.jenkins_sg.id
 }
+
+output "vault_sg" {
+  value = aws_security_group.vault_sg.id
+}
