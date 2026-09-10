@@ -1,5 +1,5 @@
 locals {
-  admin_public_ip_address = "196.89.238.152/32"
+  admin_public_ip_address = "105.190.207.47/32"
 }
 
 
@@ -44,6 +44,13 @@ resource "aws_security_group" "postgres_sg" {
     cidr_blocks = var.k8_public_subnets_cidr_blocks # restrict to your VPC/app CIDR, not 0.0.0.0/0
   }
 
+    ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = var.vault_cidr # restrict to your VPC/app CIDR, not 0.0.0.0/0
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -85,7 +92,7 @@ resource "aws_security_group" "vault_sg" {
     from_port   = 8200
     to_port     = 8200
     protocol    = "tcp"
-    cidr_blocks = var.vpn_cicd # Restrict to VPN/CI/CD CIDRs
+    cidr_blocks = [local.admin_public_ip_address] # Restrict to VPN/CI/CD CIDRs
   }
 
       ingress {

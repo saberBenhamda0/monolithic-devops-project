@@ -58,6 +58,7 @@ module "security_group_keys" {
   vpc_id                        = module.vpc.vpc_id
   k8_public_subnets_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
   vpn_cicd                      = ["10.0.10.0/24"]
+  vault_cidr = ["10.0.14.0/24"]
 }
 
 module "ebs" {
@@ -154,6 +155,15 @@ module "postgreSQL" {
 
   postgres_sg = module.security_group_keys.postrgesql_security_group_id
 
+
+}
+
+module "vault" {
+  source = "./modules/vault"
+
+  postgresql_database_url = module.postgreSQL.postgres_database_url
+  postgresql_database_username = var.db_username
+  postgresql_database_password = var.db_password
 
 }
 

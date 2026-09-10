@@ -10,3 +10,8 @@ variable "vpn_cicd" {
   type        = list(string)
   description = "vpn_cicd"
 }
+
+variable "vault_cidr" {
+  type        = list(string)
+  description = "vpn_cicd"
+}
