@@ -9,19 +9,9 @@ data:
     apiVersion: 1
 
     datasources:
-      - name: Prometheus
+      - name: Prometheustesttest
         type: prometheus
         uid: prometheus
-        access: proxy
-        url: http://prometheus-kube-prometheus-prometheus:9090
-        isDefault: false
-        version: 1
-        editable: false
-        jsonData:
-          {}
-      - name: Prometheus2
-        type: prometheus
-        uid: prometheus2
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus:9090
         isDefault: false
