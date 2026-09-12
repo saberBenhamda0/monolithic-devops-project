@@ -27,7 +27,7 @@ data:
               "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
               "legendFormat": "{{instance}}",
               "refId": "A",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             }
           ]
         },
@@ -41,19 +41,19 @@ data:
               "expr": "node_load1{instance=~\"$instance\"}",
               "legendFormat": "{{instance}} - 1m",
               "refId": "A",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             },
             {
               "expr": "node_load5{instance=~\"$instance\"}",
               "legendFormat": "{{instance}} - 5m",
               "refId": "B",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             },
             {
               "expr": "node_load15{instance=~\"$instance\"}",
               "legendFormat": "{{instance}} - 15m",
               "refId": "C",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             }
           ]
         },
@@ -70,19 +70,19 @@ data:
               "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
               "legendFormat": "{{instance}} - Used",
               "refId": "A",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             },
             {
               "expr": "node_memory_MemAvailable_bytes",
               "legendFormat": "{{instance}} - Available",
               "refId": "B",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             },
             {
               "expr": "node_memory_MemTotal_bytes",
               "legendFormat": "{{instance}} - Total",
               "refId": "C",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             }
           ]
         },
@@ -99,13 +99,13 @@ data:
               "expr": "rate(node_disk_read_bytes_total[5m])",
               "legendFormat": "{{instance}} - {{device}} read",
               "refId": "A",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             },
             {
               "expr": "rate(node_disk_written_bytes_total[5m])",
               "legendFormat": "{{instance}} - {{device}} write",
               "refId": "B",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             }
           ]
         },
@@ -122,7 +122,7 @@ data:
               "expr": "100 - ((node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay\"} * 100) / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"})",
               "legendFormat": "{{instance}} - {{mountpoint}}",
               "refId": "A",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             }
           ]
         },
@@ -139,13 +139,13 @@ data:
               "expr": "rate(node_network_receive_bytes_total{device!~\"lo\"}[5m])",
               "legendFormat": "{{instance}} - {{device}} in",
               "refId": "A",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             },
             {
               "expr": "rate(node_network_transmit_bytes_total{device!~\"lo\"}[5m])",
               "legendFormat": "{{instance}} - {{device}} out",
               "refId": "B",
-              "datasource": { "type": "prometheus", "uid": "prometheus" }
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             }
           ]
         }
@@ -155,7 +155,7 @@ data:
           {
             "name": "instance",
             "type": "query",
-            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
             "query": "label_values(node_uname_info, instance)",
             "multi": true,
             "includeAll": true,
