@@ -11,7 +11,7 @@ data:
       "title": "My Prometheus Dashboard",
       "uid": "my-prometheus-dashboard",
       "schemaVersion": 39,
-      "description": "Node-level metrics: CPU, load average, memory, disk I/O & space, and network traffic.",
+      "description": "Node-level metrics (CPU, load, memory, disk, network) and Kubernetes cluster metrics (resource usage, pod status, node health, namespace consumption).",
       "version": 1,
       "panels": [
         {
@@ -148,6 +148,157 @@ data:
               "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
             }
           ]
+        },
+        {
+          "id": 7,
+          "title": "Cluster CPU: Requests vs Limits vs Actual Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+          "fieldConfig": {
+            "defaults": { "unit": "short" }
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\", namespace=~\"$namespace\"}[5m]))",
+              "legendFormat": "actual usage (cores)",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\", namespace=~\"$namespace\"})",
+              "legendFormat": "requests (cores)",
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{resource=\"cpu\", namespace=~\"$namespace\"})",
+              "legendFormat": "limits (cores)",
+              "refId": "C",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "title": "Cluster Memory: Requests vs Limits vs Actual Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+          "fieldConfig": {
+            "defaults": { "unit": "bytes" }
+          },
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{container!=\"\", namespace=~\"$namespace\"})",
+              "legendFormat": "actual usage",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\", namespace=~\"$namespace\"})",
+              "legendFormat": "requests",
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{resource=\"memory\", namespace=~\"$namespace\"})",
+              "legendFormat": "limits",
+              "refId": "C",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "title": "Pod Status",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+          "targets": [
+            {
+              "expr": "sum by (phase) (kube_pod_status_phase{namespace=~\"$namespace\"})",
+              "legendFormat": "{{phase}}",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "title": "Pod Restarts",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+          "targets": [
+            {
+              "expr": "sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\"}[15m]))",
+              "legendFormat": "{{namespace}}/{{pod}}",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "title": "Node Health (Ready Status)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
+          "targets": [
+            {
+              "expr": "kube_node_status_condition{condition=\"Ready\", status=\"true\"}",
+              "legendFormat": "{{node}}",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "title": "Node Capacity (CPU & Memory)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
+          "targets": [
+            {
+              "expr": "sum by (node) (kube_node_status_capacity{resource=\"cpu\"})",
+              "legendFormat": "{{node}} - CPU cores",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            },
+            {
+              "expr": "sum by (node) (kube_node_status_capacity{resource=\"memory\"})",
+              "legendFormat": "{{node}} - Memory bytes",
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "title": "Namespace-Level Resource Consumption (CPU)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 48 },
+          "targets": [
+            {
+              "expr": "sum by (namespace) (rate(container_cpu_usage_seconds_total{container!=\"\"}[5m]))",
+              "legendFormat": "{{namespace}}",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "title": "Namespace-Level Resource Consumption (Memory)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 48 },
+          "fieldConfig": {
+            "defaults": { "unit": "bytes" }
+          },
+          "targets": [
+            {
+              "expr": "sum by (namespace) (container_memory_working_set_bytes{container!=\"\"})",
+              "legendFormat": "{{namespace}}",
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+            }
+          ]
         }
       ],
       "templating": {
@@ -157,6 +308,15 @@ data:
             "type": "query",
             "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
             "query": "label_values(node_uname_info, instance)",
+            "multi": true,
+            "includeAll": true,
+            "current": { "text": "All", "value": "$__all" }
+          },
+          {
+            "name": "namespace",
+            "type": "query",
+            "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+            "query": "label_values(kube_namespace_status_phase, namespace)",
             "multi": true,
             "includeAll": true,
             "current": { "text": "All", "value": "$__all" }
