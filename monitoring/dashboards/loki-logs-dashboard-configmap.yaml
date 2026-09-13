@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-manga2you-logs-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  backend-manga2you-logs-dashboard.json: |
+    {
+      "title": "Backend Manga2You - Logs",
+      "uid": "backend-manga2you-logs",
+      "schemaVersion": 39,
+      "description": "Log dashboard for backend-manga2you using Loki.",
+      "version": 1,
+      "templating": {
+        "list": [
+          {
+            "name": "loki_datasource",
+            "type": "datasource",
+            "query": "loki",
+            "current": {}
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Log Volume Over Time",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate({app=\"backend-manga2you\"}[5m]))",
+              "legendFormat": "log rate",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Log Level Breakdown",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate({app=\"backend-manga2you\"} |~ \"(?i)error\"[5m]))",
+              "legendFormat": "ERROR",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            },
+            {
+              "expr": "sum(rate({app=\"backend-manga2you\"} |~ \"(?i)warn\"[5m]))",
+              "legendFormat": "WARN",
+              "refId": "B",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            },
+            {
+              "expr": "sum(rate({app=\"backend-manga2you\"} |~ \"(?i)info\"[5m]))",
+              "legendFormat": "INFO",
+              "refId": "C",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Error Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "fieldConfig": {
+            "defaults": { "unit": "percent", "min": 0, "max": 100 }
+          },
+          "targets": [
+            {
+              "expr": "100 * sum(rate({app=\"backend-manga2you\"} |~ \"(?i)error\"[5m])) / sum(rate({app=\"backend-manga2you\"}[5m]))",
+              "legendFormat": "error %",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Error & Fatal Logs (Live)",
+          "type": "logs",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+          "options": {
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "targets": [
+            {
+              "expr": "{app=\"backend-manga2you\"} |~ \"(?i)(error|fatal|exception|panic)\"",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Top Recurring Error Messages",
+          "type": "table",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 26 },
+          "targets": [
+            {
+              "expr": "topk(10, sum by (message) (count_over_time({app=\"backend-manga2you\"} |~ \"(?i)error\" | logfmt [1h])))",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "All Logs",
+          "type": "logs",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 34 },
+          "options": {
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "targets": [
+            {
+              "expr": "{app=\"backend-manga2you\"}",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        }
+      ],
+      "time": { "from": "now-6h", "to": "now" },
+      "refresh": "30s"
+    }
