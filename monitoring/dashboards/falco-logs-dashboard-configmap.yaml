@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-security-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  falco-security-dashboard.json: |
+    {
+      "title": "Falco - Security Events",
+      "uid": "falco-security-events",
+      "schemaVersion": 39,
+      "description": "Security dashboard for Falco runtime alerts via falcosidekick/Loki.",
+      "version": 1,
+      "templating": {
+        "list": [
+          {
+            "name": "loki_datasource",
+            "type": "datasource",
+            "query": "loki",
+            "current": {}
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Event Volume Over Time",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate({app=\"falco\"}[5m]))",
+              "legendFormat": "event rate",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Events by Priority",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate({app=\"falco\"} |~ \"(?i)emergency\"[5m]))",
+              "legendFormat": "EMERGENCY",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            },
+            {
+              "expr": "sum(rate({app=\"falco\"} |~ \"(?i)alert\"[5m]))",
+              "legendFormat": "ALERT",
+              "refId": "B",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            },
+            {
+              "expr": "sum(rate({app=\"falco\"} |~ \"(?i)critical\"[5m]))",
+              "legendFormat": "CRITICAL",
+              "refId": "C",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            },
+            {
+              "expr": "sum(rate({app=\"falco\"} |~ \"(?i)warning\"[5m]))",
+              "legendFormat": "WARNING",
+              "refId": "D",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            },
+            {
+              "expr": "sum(rate({app=\"falco\"} |~ \"(?i)notice\"[5m]))",
+              "legendFormat": "NOTICE",
+              "refId": "E",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Critical+ Event Rate (%)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "fieldConfig": {
+            "defaults": { "unit": "percent", "min": 0, "max": 100 }
+          },
+          "targets": [
+            {
+              "expr": "100 * sum(rate({app=\"falco\"} |~ \"(?i)(critical|alert|emergency)\"[5m])) / sum(rate({app=\"falco\"}[5m]))",
+              "legendFormat": "critical+ %",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Critical & Alert Events (Live)",
+          "type": "logs",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+          "options": {
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "targets": [
+            {
+              "expr": "{app=\"falco\"} |~ \"(?i)(critical|alert|emergency)\"",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Top Triggered Rules",
+          "type": "table",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 26 },
+          "targets": [
+            {
+              "expr": "topk(10, sum by (rule) (count_over_time({app=\"falco\"} | logfmt [1h])))",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Top Processes Triggering Events",
+          "type": "table",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 26 },
+          "targets": [
+            {
+              "expr": "topk(10, sum by (proc_exe) (count_over_time({app=\"falco\"} | logfmt [1h])))",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": "All Falco Events",
+          "type": "logs",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 34 },
+          "options": {
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "targets": [
+            {
+              "expr": "{app=\"falco\"}",
+              "refId": "A",
+              "datasource": { "type": "loki", "uid": "${loki_datasource}" }
+            }
+          ]
+        }
+      ],
+      "time": { "from": "now-6h", "to": "now" },
+      "refresh": "30s"
+    }
