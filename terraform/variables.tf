@@ -29,3 +29,9 @@ variable "db_password" {
 variable "db_name" {
   type = string
 }
+
+variable "vault_token" {
+  type = string
+  description = "hashicorp vault token"
+  sensitive = true
+}

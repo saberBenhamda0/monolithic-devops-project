@@ -18,17 +18,17 @@ module "vpc" {
   }
 }
 
-# module "iam" {
-#   source = "./modules/iam"
+module "iam" {
+  source = "./modules/iam"
 
-#   eks_name = local.eks_name
+  eks_name = local.eks_name
 
-#   eks = module.eks.eks
+  eks = module.eks.eks
 
-#   aws_cloudfront_distribution_frontend_id = module.cloudfront.aws_cloudfront_distribution_frontend_id
+  aws_cloudfront_distribution_frontend_id = module.cloudfront.aws_cloudfront_distribution_frontend_id
 
-#   s3_arn = module.s3.s3_arn
-# }
+  s3_arn = module.s3.s3_arn
+}
 
 
 data "aws_ami" "ubuntu" {
@@ -94,7 +94,7 @@ module "ec2" {
       subnet_id     = module.vpc.public_subnets["public_subnet_jenkins"].id
       private_ip    = "10.0.11.10"
       ssh_key_name  = module.ssh_keys.ssh_developer_key_id
-
+      iam_instance_profile = "ec2-instance-profile"
       security_group_keys = [module.security_group_keys.jenkins_security_group_id]
 
       tags = {
@@ -143,33 +143,33 @@ module "ec2" {
   depends_on = [module.vpc, module.security_group_keys, module.ssh_keys]
 }
 
-module "postgreSQL" {
+# module "postgreSQL" {
 
-  source = "./modules/postgreSQL"
+#   source = "./modules/postgreSQL"
 
-  db_username                       = var.db_username
-  db_password                       = var.db_password
-  db_name                           = var.db_name
-  public_subnet_postgres_east_1a_id = module.vpc.public_subnets["public_subnet_postgres_east_1a"].id
-  public_subnet_postgres_east_1b_id = module.vpc.public_subnets["public_subnet_postgres_east_1b"].id
+#   db_username                       = var.db_username
+#   db_password                       = var.db_password
+#   db_name                           = var.db_name
+#   public_subnet_postgres_east_1a_id = module.vpc.public_subnets["public_subnet_postgres_east_1a"].id
+#   public_subnet_postgres_east_1b_id = module.vpc.public_subnets["public_subnet_postgres_east_1b"].id
 
-  postgres_sg = module.security_group_keys.postrgesql_security_group_id
+#   postgres_sg = module.security_group_keys.postrgesql_security_group_id
 
 
-}
+# }
 
-module "vault" {
-  source = "./modules/vault"
+# module "vault" {
+#   source = "./modules/vault"
 
-  postgresql_database_url = module.postgreSQL.postgres_database_url
-  postgresql_database_username = var.db_username
-  postgresql_database_password = var.db_password
+#   postgresql_database_url = module.postgreSQL.postgres_database_url
+#   postgresql_database_username = var.db_username
+#   postgresql_database_password = var.db_password
 
-}
+# }
 
-module "cloudwatch" {
-  source = "./modules/cloudwatch"
-}
+# module "cloudwatch" {
+#   source = "./modules/cloudwatch"
+# }
 
 
 # module "waf" {
@@ -196,16 +196,18 @@ module "cloudfront" {
 }
 
 
-# module "eks" {
-#   source = "./modules/eks"
+module "eks" {
+  source = "./modules/eks"
 
-#   eks_name = local.eks_name
-#   eks_version = local.eks_version
-#   private_subnets = module.vpc.private_subnets
-#   public_subnets = module.vpc.public_subnets
-#   cluster_autoscaler_arn = module.iam.cluster_autoscaler_arn
+  eks_name = local.eks_name
+  eks_version = local.eks_version
+  private_subnets =  [ module.vpc.private_subnets["private_subnet_k8_a"].id, module.vpc.private_subnets["private_subnet_k8_b"].id ]
+  public_subnets = [ module.vpc.public_subnets["public_subnet_k8_a"].id, module.vpc.public_subnets["public_subnet_k8_b"].id]
+  cluster_autoscaler_arn = module.iam.cluster_autoscaler_arn
 
-# }
+  depends_on = [ module.vpc ]
+
+}
 
 
 # # metrics servier for pod auto scaling

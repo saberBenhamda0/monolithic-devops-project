@@ -41,6 +41,11 @@ provider "kubernetes" {
   token                  = module.eks.token
 }
 
+provider "vault" {
+  address = "http://${module.ec2.ec2_address["vault"]}:8200"
+  token = var.vault_token
+}
+
 provider "argocd" {
 
   # this option if you want argo to public avaible.
