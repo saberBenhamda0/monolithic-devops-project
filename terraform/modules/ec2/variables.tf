@@ -16,6 +16,7 @@ variable "instances" {
     private_ip          = string
     ssh_key_name        = string
     security_group_keys = optional(list(string), [])
+    iam_instance_profile =optional(string, "")
     tags                = optional(map(string), {})
     user_data_script     = optional(string, "")
   }))

@@ -36,6 +36,8 @@ resource "aws_instance" "instances" {
   instance_type = each.value.instance_type
   key_name      = each.value.ssh_key_name
 
+  iam_instance_profile = each.value.iam_instance_profile
+
   network_interface {
     network_interface_id = aws_network_interface.ec2_interface[each.key].id
     device_index         = 0
