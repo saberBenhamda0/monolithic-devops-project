@@ -1,7 +1,12 @@
-locals {
-  admin_public_ip_address = "105.190.207.47/32"
+# 1. Fetch your machine's public IP address
+data "http" "my_public_ip" {
+  url = "https://icanhazip.com"
 }
 
+# 2. Clean up any trailing newlines using chomp()
+locals {
+  admin_public_ip_address = chomp(data.http.my_public_ip.response_body)
+}
 
 resource "aws_security_group" "vpn_sg" {
   name        = "vpn-sg"
@@ -37,6 +42,7 @@ resource "aws_security_group" "postgres_sg" {
   description = "Allow PostgreSQL inbound traffic"
   vpc_id      = var.vpc_id
 
+  # allowed ingress from the worker nodes in the eks cluster so our BE can access it
   ingress {
     from_port   = 5432
     to_port     = 5432
@@ -44,11 +50,13 @@ resource "aws_security_group" "postgres_sg" {
     cidr_blocks = var.k8_public_subnets_cidr_blocks # restrict to your VPC/app CIDR, not 0.0.0.0/0
   }
 
+
+    # allowed ingress from the vault cidr so vault can fetch and create dynamic creds.
     ingress {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = var.vault_cidr # restrict to your VPC/app CIDR, not 0.0.0.0/0
+    cidr_blocks = var.vault_cidr
   }
 
   egress {
@@ -66,11 +74,21 @@ resource "aws_security_group" "jenkins_sg" {
   description = "Allow jenkins inbound traffic"
   vpc_id      = var.vpc_id
 
+
+  # allow ingress from self hosted vpn we have.
   ingress {
     from_port   = 8090
     to_port     = 8090
     protocol    = "tcp"
-    cidr_blocks = var.vpn_cicd # restrict to your VPC/app CIDR, not 0.0.0.0/0
+    cidr_blocks = var.vpn_cicd
+  }
+
+  # tmp allow for dev of the infra
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [local.admin_public_ip_address]
   }
 
 
@@ -88,14 +106,17 @@ resource "aws_security_group" "vault_sg" {
   description = "Allow Vault inbound traffic"
   vpc_id      = var.vpc_id
 
+
+  # allow access from self hosted vpn
   ingress {
     from_port   = 8200
     to_port     = 8200
     protocol    = "tcp"
-    cidr_blocks = [local.admin_public_ip_address] # Restrict to VPN/CI/CD CIDRs
+    cidr_blocks = var.vpn_cicd
   }
 
-      ingress {
+  # tmp to allow access for dev  
+    ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
